@@ -11,20 +11,22 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('quotes', function (Blueprint $table) {
+        Schema::create('workshops', function (Blueprint $table) {
             $table->id();
-            $table->text('contenu')->nullable(); // `text` pour des citations pouvant être longues
-            $table->string('nom_auteur')->nullable(); // nom de l'auteur, format court
+            $table->string('nom');
+            $table->text('description')->nullable();
+            $table->date('date');
+            $table->string('lien')->nullable();
+            $table->string('image')->nullable();
             $table->timestamps();
         });
     }
-    
 
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('quotes');
+        Schema::dropIfExists('workshops');
     }
 };

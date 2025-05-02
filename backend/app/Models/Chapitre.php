@@ -4,28 +4,22 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Thematic;
-use App\Models\SousChapitres;
 
 class Chapitre extends Model
 {
+    /** @use HasFactory<\Database\Factories\ChapitreFactory> */
     use HasFactory;
-
     protected $fillable = [
         'title',
         'description',
         'image',
         'thematic_id',
-        'pourcentage',
+        'pourcentage'
     ];
 
     public function thematic()
     {
-        return $this->belongsTo(Thematic::class);
+        return $this->belongsTo(Thematic::class, 'thematic_id');
     }
 
-    public function sousChapitres()
-    {
-        return $this->hasMany(SousChapitre::class, 'chapitre_id');
-    }
 }

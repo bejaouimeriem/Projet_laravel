@@ -11,21 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tests', function (Blueprint $table) {
+        Schema::create('questions', function (Blueprint $table) {
             $table->id();
-            $table->string('nom_test')->nullable(); // Nom du test
-            $table->string('type_test')->nullable(); // Type du test
-            $table->boolean('utilisable')->default(true); // 'utilisable' comme booléen pour vrai/faux
+            $table->string('contenu');
+            $table->foreignId('test_id')->constrained('tests')->onDelete('cascade'); // Assuming you have a 'tests' table
             $table->timestamps();
         });
     }
-    
 
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('tests');
+        Schema::dropIfExists('questions');
     }
 };

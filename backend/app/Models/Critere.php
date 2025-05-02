@@ -7,11 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Critere extends Model
 {
+    /** @use HasFactory<\Database\Factories\CritereFactory> */
     use HasFactory;
 
     protected $table = 'criteres';
 
-    // Fillable attributes to protect against mass-assignment vulnerabilities
     protected $fillable = [
         'nom',
         'contenu',
@@ -19,9 +19,8 @@ class Critere extends Model
         'personnalite_id',
     ];
 
-    // Define the relationship with Personnalite
     public function personnalite()
     {
-        return $this->belongsTo(Personnalite::class);
+        return $this->belongsTo(Personnalite::class, 'personnalite_id');
     }
 }

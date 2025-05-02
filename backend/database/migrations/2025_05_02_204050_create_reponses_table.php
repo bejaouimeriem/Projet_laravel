@@ -13,15 +13,11 @@ return new class extends Migration
     {
         Schema::create('reponses', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('question_id')->nullable(); // clé étrangère propre
-            $table->text('contenu')->nullable(); // `text` pour le contenu de la réponse
+            $table->string('contenu');
+            $table->foreignId('question_id')->constrained('questions')->onDelete('cascade'); // Assuming you have a 'questions' table
             $table->timestamps();
-    
-            // Clé étrangère (si la table questions existe)
-            $table->foreign('question_id')->references('id')->on('questions')->onDelete('cascade');
         });
     }
-    
 
     /**
      * Reverse the migrations.

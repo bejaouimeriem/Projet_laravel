@@ -13,12 +13,11 @@ return new class extends Migration
     {
         Schema::create('thematics', function (Blueprint $table) {
             $table->id();
-            $table->string('image')->nullable(); // URL ou nom du fichier de l'image
-            $table->string('nom')->nullable();   // Nom de la thématique
+            $table->string('nom');
+            $table->string('image')->nullable();
             $table->timestamps();
         });
     }
-    
 
     /**
      * Reverse the migrations.

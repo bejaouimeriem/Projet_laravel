@@ -11,22 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('feedback', function (Blueprint $table) {
+        Schema::create('tests', function (Blueprint $table) {
             $table->id();
-            $table->text('message')->nullable(); // text pour contenu potentiellement long
+            $table->string('nomTest');
+            $table->string('typeTest');
+            $table->integer('utilisable')->default(1);
             $table->timestamps();
-    
-            // Clé étrangère si la table utilisateurs existe
-            $table->foreign('user_id')->references('id')->on('utilisateurs')->onDelete('set null');
         });
     }
-    
 
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('feedback');
+        Schema::dropIfExists('tests');
     }
 };

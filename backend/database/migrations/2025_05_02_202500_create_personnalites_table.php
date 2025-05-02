@@ -13,15 +13,14 @@ return new class extends Migration
     {
         Schema::create('personnalites', function (Blueprint $table) {
             $table->id();
-            $table->text('contenu')->nullable();       // `text` est mieux pour des contenus longs
-            $table->string('icon')->nullable();        // icône, format court → `string` OK
-            $table->string('image')->nullable();       // image (ex: nom de fichier ou URL)
-            $table->string('nom')->nullable();         // nom en français
-            $table->string('nom_english')->nullable(); // nom en anglais
+            $table->string('nom');
+            $table->string('nomEnglish');
+            $table->text('contenu');
+            $table->string('icon');
+            $table->string('image');
             $table->timestamps();
         });
     }
-    
 
     /**
      * Reverse the migrations.

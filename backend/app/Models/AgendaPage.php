@@ -7,13 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class AgendaPage extends Model
 {
+    /** @use HasFactory<\Database\Factories\AgendaPageFactory> */
     use HasFactory;
-
     protected $fillable = [
-        'page_number',
-        'left_content',
-        'right_content',
-        'user_id',
+        'pageNumber',
+        'leftContent',
+        'rightContent',
+        'utilisateur_id',
     ];
 
     public function utilisateur()

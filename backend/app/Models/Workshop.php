@@ -5,9 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class WorkshopEvent extends Model
+class Workshop extends Model
 {
+    /** @use HasFactory<\Database\Factories\WorkshopFactory> */
     use HasFactory;
+    protected $table = 'workshops';
 
     protected $fillable = [
         'nom',
@@ -16,4 +18,6 @@ class WorkshopEvent extends Model
         'lien',
         'image',
     ];
+
+    protected $dates = ['date'];
 }

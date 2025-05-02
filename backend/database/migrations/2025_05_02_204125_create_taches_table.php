@@ -1,0 +1,28 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('taches', function (Blueprint $table) {
+            $table->id();
+            $table->string('nomTache');
+            $table->integer('done')->default(0); // Assuming 0 means not done
+            $table->date('date');
+            $table->foreignId('user_id')->constrained('utilisateurs')->onDelete('cascade'); // Assuming you have a 'users' table
+            $table->timestamps();
+        });
+    }
+    
+    public function down(): void
+    {
+        Schema::dropIfExists('taches');
+    }
+};

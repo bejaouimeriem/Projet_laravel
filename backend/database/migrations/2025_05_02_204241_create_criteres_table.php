@@ -13,16 +13,17 @@ return new class extends Migration
     {
         Schema::create('criteres', function (Blueprint $table) {
             $table->id();
-            $table->string('contenu')->nullable();
-            $table->string('nom')->nullable();
+            $table->string('nom');
+            $table->text('contenu');
             $table->string('icon')->nullable();
+            $table->unsignedBigInteger('personnalite_id');
             $table->timestamps();
-    
-            // Clé étrangère si la table personnalites existe
-            $table->foreign('personnalite_id')->references('id')->on('personnalites')->onDelete('set null');
+
+            $table->foreign('personnalite_id')
+                  ->references('id')->on('personnalites')
+                  ->onDelete('cascade');
         });
     }
-    
 
     /**
      * Reverse the migrations.
