@@ -19,7 +19,7 @@ class Chapitre extends Model
 
     public function thematic()
     {
-        return $this->belongsTo(Thematic::class, 'thematic_id');
+        return $this->belongsTo(Thematic::class);
     }
 
 }

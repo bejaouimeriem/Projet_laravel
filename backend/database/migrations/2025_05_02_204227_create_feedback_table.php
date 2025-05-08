@@ -14,10 +14,9 @@ return new class extends Migration
         Schema::create('feedback', function (Blueprint $table) {
             $table->id();
             $table->text('message');
-            $table->unsignedBigInteger('utilisateur_id');
             $table->timestamps();
 
-            $table->foreign('utilisateur_id')->references('id')->on('utilisateurs')->onDelete('cascade');
+            $table->foreignId('utilisateur_id')->constrained('utilisateurs')->onDelete('cascade');
        
         });
     }

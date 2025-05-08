@@ -11,13 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('chapitres', function (Blueprint $table) {
+        Schema::create('user_sous_chapitres_progress', function (Blueprint $table) {
             $table->id();
-            $table->string('title');
-            $table->text('description');
-            $table->string('image')->nullable();
-            $table->foreignId('thematic_id')->constrained('thematics')->onDelete('cascade'); 
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('sous_chapitre_id')->constrained('sous_chapitres')->onDelete('cascade');
             $table->unsignedBigInteger('pourcentage')->default(0);
+            $table->unsignedBigInteger('lastPageRead')->default(1);
             $table->timestamps();
         });
     }
@@ -27,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('chapitres');
+        Schema::dropIfExists('user_sous_chapitres_progress');
     }
 };

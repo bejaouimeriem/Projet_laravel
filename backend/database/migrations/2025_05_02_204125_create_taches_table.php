@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('taches', function (Blueprint $table) {
             $table->id();
             $table->string('nomTache');
-            $table->integer('done')->default(0); // Assuming 0 means not done
+            $table->integer('done')->default(0);
             $table->date('date');
-            $table->foreignId('user_id')->constrained('utilisateurs')->onDelete('cascade'); // Assuming you have a 'users' table
+            $table->foreignId('user_id')->constrained('utilisateurs')->onDelete('cascade'); 
             $table->timestamps();
         });
     }

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('nomTest');
             $table->string('typeTest');
-            $table->integer('utilisable')->default(1);
+            $table->integer('utilisable')->default(0);
             $table->timestamps();
         });
     }

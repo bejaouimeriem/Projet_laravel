@@ -16,6 +16,6 @@ class Thematic extends Model
 
     public function chapitres()
     {
-        return $this->hasMany(Chapitre::class, 'thematic_id');
+        return $this->hasMany(Chapitre::class);
     }
 }

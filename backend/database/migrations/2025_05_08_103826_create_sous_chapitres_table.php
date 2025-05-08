@@ -11,12 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('criteres', function (Blueprint $table) {
+        Schema::create('sous_chapitres', function (Blueprint $table) {
             $table->id();
-            $table->string('nom');
-            $table->text('contenu');
-            $table->string('icon')->nullable();
-            $table->foreignId('personnalite_id')->constrained('personnalites')->onDelete('cascade'); 
+            $table->string('lienVideo');
+            $table->string('pdf');
+            $table->string('description');
+            $table->string('image');
+            $table->foreignId('chapitre_id')->constrained('chapitres')->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -26,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('criteres');
+        Schema::dropIfExists('sous_chapitres');
     }
 };

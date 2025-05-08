@@ -20,14 +20,10 @@ return new class extends Migration
             $table->string('resetToken')->nullable();
             $table->dateTime('tokenExpiry')->nullable();
             $table->string('accessToken')->nullable();
+            $table->foreignId('personnalite_id')->constrained('personnalites')->onDelete('cascade');
 
-            $table->unsignedBigInteger('personnalite_id')->nullable();
-            $table->unsignedBigInteger('quote_id')->nullable();
 
             $table->timestamps();
-
-            $table->foreign('personnalite_id')->references('id')->on('personnalites')->onDelete('set null');
-            $table->foreign('quote_id')->references('id')->on('quotes')->onDelete('set null');
         });
     }
 

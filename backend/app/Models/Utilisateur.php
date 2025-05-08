@@ -7,8 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Utilisateur extends Model
 {
-    /** @use HasFactory<\Database\Factories\UtilisateurFactory> */
     use HasFactory;
+
     protected $fillable = [
         'nom',
         'email',
@@ -21,6 +21,8 @@ class Utilisateur extends Model
         'quote_id',
     ];
 
+    protected $hidden = ['mdpsCompte'];
+
     protected $dates = ['tokenExpiry'];
 
     public function personnalite()
@@ -28,23 +30,32 @@ class Utilisateur extends Model
         return $this->belongsTo(Personnalite::class);
     }
 
-    public function quote()
-    {
-        return $this->belongsTo(Quote::class);
-    }
-
     public function feedbacks()
     {
-        return $this->hasMany(Feedback::class, 'utilisateur_id');
+        return $this->hasMany(Feedback::class);
     }
 
     public function agendaPages()
     {
-        return $this->hasMany(AgendaPage::class, 'utilisateur_id');
+        return $this->hasMany(AgendaPage::class);
     }
 
     public function taches()
     {
-        return $this->hasMany(Tache::class, 'user_id');
+        return $this->hasMany(Tache::class);
+    }
+
+    // Relation directe avec SousChapitre via table pivot personnalisée
+    public function sousChapitres()
+    {
+        return $this->belongsToMany(SousChapitre::class, 'user_sous_chapitre_progresses', 'user_id', 'sous_chapitre_id')
+                    ->withPivot('pourcentage')
+                    ->withTimestamps();
+    }
+
+    // Relation avec modèle intermédiaire
+    public function sousChapitreProgress()
+    {
+        return $this->hasMany(UserSousChapitreProgress::class, 'user_id');
     }
 }
