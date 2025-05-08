@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('user_sous_chapitres_progress', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('user_id')->constrained('utilisateurs')->onDelete('cascade');
             $table->foreignId('sous_chapitre_id')->constrained('sous_chapitres')->onDelete('cascade');
             $table->unsignedBigInteger('pourcentage')->default(0);
             $table->unsignedBigInteger('lastPageRead')->default(1);
