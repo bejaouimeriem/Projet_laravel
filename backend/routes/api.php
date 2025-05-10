@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\ThematicController;
 use App\Http\Controllers\UtilisateurController;
 use Illuminate\Http\Request;
@@ -19,4 +20,9 @@ Route::delete('/thematics/{id}',[ThematicController::class,'deleteThematic']);
 Route::group(['prefix'=>'/Utilisateur'],function(){
     Route::post('/login',[UtilisateurController::class,'login']);
     Route::post('/register',[UtilisateurController::class,'register']);
+}); 
+
+Route::group(['prefix'=>'/Feedback'],function(){
+    Route::get('/getAll',[FeedbackController::class,'getAllFeedbacks']);
+    Route::post('/create',[FeedbackController::class,'createFeedback']);
 }); 

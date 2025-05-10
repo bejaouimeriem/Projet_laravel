@@ -40,7 +40,7 @@
 
       <Contact @openRate="showRate = true" />
       <v-dialog v-model="showRate" persistent max-width="600px">
-        <Rate @closeRate="showRate = false" />
+        <Rate @closeRate="showRate = false" @showFeedbacks="handleFeedbacks" />
       </v-dialog>
     </v-container>
     <Footer />
@@ -76,6 +76,7 @@ export default defineComponent({
   },
   data() {
     return {
+      data:{},
       showSignUp: false,
       showLogin: false,
       isLoading: true,
@@ -88,6 +89,14 @@ export default defineComponent({
       this.isLoading = false;
     }, 1000);
   },
+  methods:{
+      handleFeedbacks(data) {
+      this.data={
+        feedbacks: data.feedbacks,
+        type: data.type,
+      };
+    },
+  }
 });
 </script>
 
