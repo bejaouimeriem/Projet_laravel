@@ -148,7 +148,7 @@ export default {
 
       try {
         const res = await axios.post(
-          "http://localhost:9090/api/auth/reset-password",
+          "http://localhost:8000/api/Utilisateur/reset-password",
           {
             token: this.tokenInput,
             password: this.password,

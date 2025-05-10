@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Str;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Models\Utilisateur;
 use Illuminate\Support\Facades\Hash;
@@ -68,5 +70,126 @@ class UtilisateurController extends Controller
         
 
         return response()->json($utilisateur, 200);
+    }
+
+    // GET /api/Utilisateur/getAll
+    public function getAll()
+    {
+        return response()->json(Utilisateur::all());
+    }
+
+    // GET /api/Utilisateur/get/{id}
+    public function get($id)
+    {
+        $user = Utilisateur::find($id);
+        if (!$user) {
+            return response()->json(['message' => 'Utilisateur non trouvé'], 404);
+        }
+        return response()->json($user);
+    }
+
+    // DELETE /api/Utilisateur/delete/{id}
+    public function delete($id)
+    {
+        $user = Utilisateur::find($id);
+        if (!$user) {
+            return response()->json('Utilisateur non trouvé', 404);
+        }
+        $user->delete();
+        return response()->json('Utilisateur supprimé avec succès');
+    }
+
+    // DELETE /api/Utilisateur/deleteAll
+    public function deleteAll()
+    {
+        Utilisateur::truncate();
+        return response()->json('Tous les utilisateurs ont été supprimés');
+    }
+
+    // PUT /api/Utilisateur/update-profile/{id}
+    public function updateProfile($id, Request $request)
+    {
+        $user = Utilisateur::find($id);
+        if (!$user) {
+            return response()->json(['message' => 'Utilisateur non trouvé'], 404);
+        }
+
+        $validated = $request->validate([
+            'nom' => 'nullable|string|max:255',
+            'email' => 'nullable|email|unique:utilisateurs,email,' . $id,
+            'mdpsCompte' => 'nullable|string|min:6',
+            'role' => 'nullable|integer',
+        ]);
+
+        if (isset($validated['mdpsCompte'])) {
+            $validated['mdpsCompte'] = bcrypt($validated['mdpsCompte']);
+        }
+
+        $user->update($validated);
+        return response()->json($user);
+    }
+
+    // POST /api/Utilisateur/setPersonnalite
+    public function setPersonnalite(Request $request)
+    {
+        $validated = $request->validate([
+            'user_id' => 'required|exists:utilisateurs,id',
+            'personnalite_id' => 'required|exists:personnalites,id',
+        ]);
+
+        $user = Utilisateur::find($validated['user_id']);
+        $user->personnalite_id = $validated['personnalite_id'];
+        $user->save();
+
+        return response()->json($user);
+    }
+
+    // POST /api/Utilisateur/forgot-password
+    public function forgotPassword(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email|exists:utilisateurs,email'
+        ]);
+
+        $user = Utilisateur::where('email', $request->email)->first();
+
+        $token = Str::random(64);
+        $user->resetToken = $token;
+        $user->tokenExpiry = Carbon::now()->addHour(); // expire dans 1h
+        $user->save();
+
+        // Envoyer l'email
+        Mail::send('reset-password', [
+            'user' => $user,
+            'resetUrl' => "http://localhost:8081/reset-password?token={$token}&email={$user->email}"
+        ], function ($message) use ($user) {
+            $message->to($user->email)
+                    ->subject('Réinitialisation de votre mot de passe');
+        });        
+
+        return response()->json(['message' => 'Email envoyé !']);
+    }
+
+    // POST /api/Utilisateur/reset-password
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'password' => 'required|string|min:6',
+            'confirmPassword' => 'required|string|same:password',
+            'token' => 'required|string'
+        ]);
+
+        $user = Utilisateur::where('resetToken', $request->token)->first();
+
+        if (!$user || Carbon::parse($user->tokenExpiry)->isPast()) {
+            return response()->json(['message' => 'Token invalide ou expiré.'], 400);
+        }
+
+        $user->mdpsCompte = Hash::make($request->password);
+        $user->resetToken = null;
+        $user->tokenExpiry = null;
+        $user->save();
+
+        return response()->json(['message' => '✅ Mot de passe réinitialisé.']);
     }
 }

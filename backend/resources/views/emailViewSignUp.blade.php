@@ -28,7 +28,6 @@
     نتمنى لك تجربة رائعة على منصتنا! 😊
 </p>
 <p style="font-size: 14px; color: #666; text-align: center; margin-top: 10px;">
-    إلى اللقاء،  
-    فريق {{ config('app.name', 'ChbebiWin') }}
+    <strong>ChbebiWin</strong> إلى اللقاء، فريق
 </p>
 @endcomponent

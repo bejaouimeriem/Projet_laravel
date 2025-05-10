@@ -107,7 +107,9 @@ export default {
   },
   computed: {
     alertType() {
-      return this.message.includes("introuvable") ? "error" : "success";
+      return typeof this.message === 'string' && this.message.includes("introuvable")
+        ? "error"
+        : "success";
     },
     arabicMessage() {
       if (this.message.includes("Lien de réinitialisation")) {
@@ -130,11 +132,10 @@ export default {
 
       try {
         const res = await axios.post(
-          "auth/forgot-password",
+          "Utilisateur/forgot-password",
           { email: this.email }
         );
-        this.message =
-          res.data || "تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني بنجاح";
+        this.message = typeof res.data === 'string' ? res.data : res.data?.message || "تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني بنجاح";
       } catch (err) {
         this.message = err.response?.data?.message || "البريد الإلكتروني غير مسجل في نظامنا";
       } finally {
