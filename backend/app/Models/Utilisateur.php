@@ -14,10 +14,8 @@ class Utilisateur extends Model
         'email',
         'mdpsCompte',
         'role',
-        'resetToken',
-        'tokenExpiry',
-        'accessToken',
-        'personnalite_id'
+        'personnalite_id',
+        'accessToken'
     ];
 
     protected $hidden = ['mdpsCompte'];
@@ -48,8 +46,8 @@ class Utilisateur extends Model
     public function sousChapitres()
     {
         return $this->belongsToMany(SousChapitre::class, 'user_sous_chapitre_progresses', 'user_id', 'sous_chapitre_id')
-                    ->withPivot('pourcentage')
-                    ->withTimestamps();
+            ->withPivot('pourcentage')
+            ->withTimestamps();
     }
 
     // Relation avec modèle intermédiaire

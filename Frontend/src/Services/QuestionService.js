@@ -1,7 +1,7 @@
 import Axios from 'axios';
 import {useUserStore} from '@/store/User/userStore';
 
-const API_URL = 'http://localhost:9090/api/Question';
+const API_URL = 'http://localhost:8000/api/Question';
 
 export default {
     async getAllQuestions(test) {

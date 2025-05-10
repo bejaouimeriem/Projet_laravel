@@ -37,6 +37,7 @@ export const useUserStore = defineStore("user", () => {
         localStorage.removeItem("accessToken");
         localStorage.removeItem("role");
         localStorage.removeItem("nom");
+        localStorage.removeItem("email");
     }
 
     function SignUp(u) {

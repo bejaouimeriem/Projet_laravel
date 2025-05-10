@@ -10,25 +10,26 @@ export default {
         email: email,
         password: password,
       });
-      const {
-        id,
-        nom,
-        email: mail,
-        accessToken,
-        role,
-        personnalite_id,
-      } = response.data;
-      const filteredUser = {
-        id,
-        nom,
-        email: mail,
-        accessToken,
-        role,
-        personnalite_id,
-      };
+      console.log("response",response.data.id);
+      // const {
+      //   id,
+      //   nom,
+      //   email: mail,
+      //   accessToken,
+      //   role,
+      //   personnalite_id,
+      // } = response.data;
+      // const filteredUser = {
+      //   id,
+      //   nom,
+      //   email: mail,
+      //   accessToken,
+      //   role,
+      //   personnalite_id,
+      // };
 
-      localStorage.setItem("email", mail);
-      store.login(filteredUser);
+      localStorage.setItem("email", response.data.email);
+      store.login(response.data);
       
 
       return response.data;

@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:9090/api/WorkshopEvents';
+const API_URL = 'http://localhost:8000/api/WorkshopEvents';
 
 export const getAllEvents = () => {
     return axios.get(`${API_URL}/getAll`);

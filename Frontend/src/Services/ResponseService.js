@@ -1,6 +1,6 @@
 import Axios from 'axios';
 
-const API_URL = 'http://localhost:9090/api/Reponse';
+const API_URL = 'http://localhost:8000/api/Reponse';
 
 export default {
     async getAllReponses() {

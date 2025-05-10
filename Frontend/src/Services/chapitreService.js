@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Define the base URL for API calls
-const API_URL = 'http://localhost:9090/api';
+const API_URL = 'http://localhost:8000/api';
 
 export default {
   /**
