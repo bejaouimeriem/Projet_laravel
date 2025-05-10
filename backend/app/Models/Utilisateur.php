@@ -17,8 +17,7 @@ class Utilisateur extends Model
         'resetToken',
         'tokenExpiry',
         'accessToken',
-        'personnalite_id',
-        'quote_id',
+        'personnalite_id'
     ];
 
     protected $hidden = ['mdpsCompte'];
