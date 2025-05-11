@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('pdf');
             $table->string('description');
             $table->string('image');
+            $table->string('title');
             $table->foreignId('chapitre_id')->constrained('chapitres')->onDelete('cascade');
             $table->timestamps();
         });
