@@ -17,7 +17,6 @@ Route::post('/thematics',[ThematicController::class,'createThematic']);
 Route::put('/thematics/{id}',[ThematicController::class,'updateThematic']);
 Route::delete('/thematics/{id}',[ThematicController::class,'deleteThematic']);
 
-<<<<<<< HEAD
 Route::prefix('Utilisateur')->controller(UtilisateurController::class)->group(function () {
     Route::post('/login', 'login');
     Route::post('/register', 'register');
@@ -30,14 +29,8 @@ Route::prefix('Utilisateur')->controller(UtilisateurController::class)->group(fu
     Route::post('/forgot-password', 'forgotPassword');
     Route::post('/reset-password', 'resetPassword');
 });
-=======
-Route::group(['prefix'=>'/Utilisateur'],function(){
-    Route::post('/login',[UtilisateurController::class,'login']);
-    Route::post('/register',[UtilisateurController::class,'register']);
-}); 
 
 Route::group(['prefix'=>'/Feedback'],function(){
     Route::get('/getAll',[FeedbackController::class,'getAllFeedbacks']);
     Route::post('/create',[FeedbackController::class,'createFeedback']);
 }); 
->>>>>>> Amine
