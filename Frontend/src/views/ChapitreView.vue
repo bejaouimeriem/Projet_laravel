@@ -273,7 +273,10 @@ export default {
           const id = store.user.id;
 
           // Obtenir le pourcentage de progression d'un chapitre
-          const progressData = [id, chapitre.id];  // [userId, chapitreId]
+          const progressData = {
+            userId: id,
+            chapitreId: chapitre.id
+          };
 
           const result = await SuperChapitre.getProgress(progressData);
           console.log(`Progression pour le chapitre ${chapitre.id}:`, result);
