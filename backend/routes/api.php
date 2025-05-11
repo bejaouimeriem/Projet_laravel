@@ -7,6 +7,7 @@ use App\Http\Controllers\WorkshopController;
 use App\Http\Controllers\QuoteController;
 use App\Http\Controllers\ChapitreController;
 use App\Http\Controllers\SousChapitreController;
+use App\Http\Controllers\UserSousChapitreProgressController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -72,5 +73,11 @@ Route::group(['prefix'=>'/SousChapitres'],function(){
     Route::post('/updateSousChapitre/{id}',[SousChapitreController::class,'updateSousChapitre']);
     Route::get('/getByChapitreId/{id}',[SousChapitreController::class,'getSousChapitres']);
     Route::delete('/delete/{id}',[SousChapitreController::class,'deleteSousChapitre']);
-    
+}); 
+
+// UserSousChapitreProgress Routes
+Route::group(['prefix'=>'/UserSousChapitreProgress'],function(){
+    Route::post('/get/{id}',[UserSousChapitreProgressController::class,'createUserSousChapitreProgressIfNotExists']);
+    Route::post('/getLastReadPage',[UserSousChapitreProgressController::class,'getLastReadPage']);
+    Route::put('/setLastPageRead',[UserSousChapitreProgressController::class,'setLastPageRead']);
 }); 
