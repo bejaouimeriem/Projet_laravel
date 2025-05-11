@@ -73,6 +73,7 @@ Route::group(['prefix'=>'/SousChapitres'],function(){
     Route::post('/updateSousChapitre/{id}',[SousChapitreController::class,'updateSousChapitre']);
     Route::get('/getByChapitreId/{id}',[SousChapitreController::class,'getSousChapitres']);
     Route::delete('/delete/{id}',[SousChapitreController::class,'deleteSousChapitre']);
+    Route::post('/createSousChapitre ',[SousChapitreController::class,'createSousChapitres']);
 }); 
 
 // UserSousChapitreProgress Routes
