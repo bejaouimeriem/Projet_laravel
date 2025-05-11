@@ -6,15 +6,12 @@ use App\Http\Controllers\UtilisateurController;
 use App\Http\Controllers\TestController;
 use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\ReponseController;
-<<<<<<< HEAD
 use App\Http\Controllers\StatisticsController;
-=======
 use App\Http\Controllers\WorkshopController;
 use App\Http\Controllers\QuoteController;
 use App\Http\Controllers\ChapitreController;
 use App\Http\Controllers\SousChapitreController;
 use App\Http\Controllers\UserSousChapitreProgressController;
->>>>>>> 969582cf455f7aebaea782f44d0ac143673ebcdb
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -81,10 +78,8 @@ Route::prefix('Reponse')->group(function () {
     Route::delete('/deleteAll', [ReponseController::class, 'deleteAll']);
     Route::get('/getByQuestion/{questionId}', [ReponseController::class, 'getByQuestion']);
 });
-<<<<<<< HEAD
 Route::get('/statistics', [StatisticsController::class, 'getStatistics']);
 
-=======
 Route::prefix('WorkshopEvents')->group(function () {
     Route::post('/create', [WorkshopController::class, 'create']);
     Route::get('/get/{id}', [WorkshopController::class, 'get']);
@@ -125,4 +120,3 @@ Route::group(['prefix'=>'/UserSousChapitreProgress'],function(){
     Route::post('/getLastReadPage',[UserSousChapitreProgressController::class,'getLastReadPage']);
     Route::put('/setLastPageRead',[UserSousChapitreProgressController::class,'setLastPageRead']);
 }); 
->>>>>>> 969582cf455f7aebaea782f44d0ac143673ebcdb
