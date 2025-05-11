@@ -364,18 +364,18 @@ export default {
 
     async loadAllSousChapitre(chapitreId) {
       try {
-        // const store = useUserStore();
-        // const idUser = store.user.id;
+        const store = useUserStore();
+        const idUser = store.user.id;
         const response = await SousChapitre.getSousChaptersByChapterId(chapitreId);
         this.sousChapitres = response;
         
-        // const sousChapitreIds = this.sousChapitres.map(sc => sc.id);
-        // const res = await SousChapitre.getAllUserSouschapitreProgress(idUser, sousChapitreIds);
-        // this.sousChapitreProgress = res || [];
+        const sousChapitreIds = this.sousChapitres.map(sc => sc.id);
+        const res = await SousChapitre.getAllUserSouschapitreProgress(idUser, sousChapitreIds);
+        this.sousChapitreProgress = res || [];
         // تحقق من أن البيانات مصفوفة
 
         console.log("Sous chapitres:", this.sousChapitres);
-        // console.log("Progrès des sous chapitres:", this.sousChapitreProgress[0].lastPageRead);
+        console.log("Progrès des sous chapitres:", this.sousChapitreProgress[0]);
 
         // تطبيق بيانات الذاكرة المؤقتة
         this.sousChapitres.forEach(sc => {

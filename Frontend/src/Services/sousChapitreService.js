@@ -127,7 +127,7 @@ export default {
   },
   async getAllUserSouschapitreProgress(userId, data) {
     try {
-      const res = await axios.post("UserSousChapitreProgress/get/" + userId, data);
+      const res = await axios.post("UserSousChapitreProgress/get/" + userId, {sousChapitreIds:data});
       return res.data;
     } catch (err) {
       console.error(err);
