@@ -7,18 +7,18 @@ use App\Models\Feedback;
 
 class FeedbackController extends Controller
 {
-public function getAllFeedbacks()
-{
-    $feedbacks = Feedback::with('utilisateur')->get()->map(function ($feedback) {
-        return [
-            'message' => $feedback->message,
-            'utilisateur_id' => $feedback->utilisateur ? $feedback->utilisateur->id : null,
-            'nom' => $feedback->utilisateur ? $feedback->utilisateur->nom : 'مجهول',
-        ];
-    });
+    public function getAllFeedbacks()
+    {
+        $feedbacks = Feedback::with('utilisateur')->get()->map(function ($feedback) {
+            return [
+                'message' => $feedback->message,
+                'utilisateur_id' => $feedback->utilisateur ? $feedback->utilisateur->id : null,
+                'nom' => $feedback->utilisateur ? $feedback->utilisateur->nom : 'مجهول',
+            ];
+        });
 
-    return response()->json($feedbacks, 200);
-}
+        return response()->json($feedbacks, 200);
+    }
     public function createFeedback(Request $request)
     {
         if(!$request->has('message')) {

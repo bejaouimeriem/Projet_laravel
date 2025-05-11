@@ -34,6 +34,6 @@ class SousChapitre extends Model
     // progressions spécifiques avec plus d’infos
     public function userProgress()
     {
-        return $this->hasMany(UserSousChapitreProgress::class, 'sous_chapitre_id');
+        return $this->hasMany(UserSousChapitresProgress::class, 'sous_chapitre_id');
     }
 }

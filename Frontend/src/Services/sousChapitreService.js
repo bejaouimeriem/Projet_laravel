@@ -5,7 +5,7 @@ const API_URL = 'http://localhost:8000/api';
 
 export default {
   getSousChaptersByChapterId(chapterId) {
-    return axios.get("SousChapitres/getByChapitreId/"+chapterId)
+    return axios.get("SousChapitres/getByChapitreId/" + chapterId)
       .then(response => response.data) // تأكد من بنية البيانات
       .catch(error => {
         console.error('Error fetching sub-chapters:', error);
@@ -19,7 +19,19 @@ export default {
    * @returns {Promise} Promise object representing the created sub-chapter
    */
   createSousChapter(sousChapter) {
-    return axios.post(`${API_URL}/SousChapitres/createSousChapitre`, sousChapter)
+    let formData = new FormData();
+    formData.append('description', sousChapter.description);
+    formData.append('title', sousChapter.title);
+    formData.append('chapitre_id', sousChapter.chapitreId);
+    formData.append('lienVideo', sousChapter.lienVideo);
+    if (sousChapter.image && sousChapter.image instanceof File) {
+      formData.append('image', sousChapter.image);
+    }
+    if (sousChapter.pdf && sousChapter.pdf instanceof File) {
+      formData.append('pdf', sousChapter.pdf);
+    }
+
+    return axios.post(`${API_URL}/SousChapitres/createSousChapitre`, formData)
       .then(response => response.data)
       .catch(error => {
         console.error('Error creating sub-chapter:', error);
@@ -34,7 +46,18 @@ export default {
    * @returns {Promise} Promise object representing the updated sub-chapter
    */
   updateSousChapter(id, sousChapter) {
-    return axios.put(`${API_URL}/SousChapitres/updateSousChapitre/${id}`, sousChapter)
+    let formData = new FormData();
+    formData.append('description', sousChapter.description);
+    formData.append('title', sousChapter.title);
+    formData.append('chapitre_id', sousChapter.chapitreId);
+    formData.append('lienVideo', sousChapter.lienVideo);
+    if (sousChapter.image && sousChapter.image instanceof File) {
+      formData.append('image', sousChapter.image);
+    }
+    if (sousChapter.pdf && sousChapter.pdf instanceof File) {
+      formData.append('pdf', sousChapter.pdf);
+    }
+    return axios.post(`${API_URL}/SousChapitres/updateSousChapitre/${id}`, formData)
       .then(response => response.data)
       .catch(error => {
         console.error('Error updating sub-chapter:', error);
@@ -72,14 +95,14 @@ export default {
   // },
   async setLastReadPage(sousChapter) {
     try {
-        const response = await axios.put('UserSousChapitreProgress/setLastPageRead', sousChapter);
-        return response.data;
+      const response = await axios.put('UserSousChapitreProgress/setLastPageRead', sousChapter);
+      return response.data;
     } catch (err) {
-        console.error(err);
-        throw err;
+      console.error(err);
+      throw err;
     }
-},
-  
+  },
+
   /**
    * Get the last read page for a sub-chapter
    * @param {Number} id - The ID of the sub-chapter
@@ -95,21 +118,21 @@ export default {
   // }
   async getLastReadPage(data) {
     try {
-        const response = await axios.post('UserSousChapitreProgress/getLastReadPage',data);
-        return response.data;
+      const response = await axios.post('UserSousChapitreProgress/getLastReadPage', data);
+      return response.data;
     } catch (err) {
-        console.error(err);
-        throw err;
-    }
-  },
-  async getAllUserSouschapitreProgress(userId,data){
-    try{
-      const res = await axios.post("UserSousChapitreProgress/get/"+userId,data);
-      return res.data;
-    }catch(err){
       console.error(err);
       throw err;
     }
- 
+  },
+  async getAllUserSouschapitreProgress(userId, data) {
+    try {
+      const res = await axios.post("UserSousChapitreProgress/get/" + userId, {sousChapitreIds:data});
+      return res.data;
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
+
   },
 };

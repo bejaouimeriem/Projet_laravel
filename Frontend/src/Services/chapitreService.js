@@ -24,9 +24,14 @@ export default {
    * @returns {Promise} Promise object representing the created chapter
    */
   createChapter(chapter) {
-    console.log('Creating chapter:', chapter); 
-    return axios.post(`${API_URL}/chapitres/create`, chapter)
-      .then(response => response.data) 
+    let data = new FormData();
+    data.append('title', chapter.title);
+    data.append('description', chapter.description);
+    data.append('thematic_id', chapter.thematicId);
+    data.append('image', chapter.image);
+    console.log('Creating chapter:', data);
+    return axios.post(`${API_URL}/chapitres/create`, data)
+      .then(response => response.data)
       .catch(error => {
         console.error('Error creating chapter:', error);
         throw error;
@@ -40,7 +45,16 @@ export default {
    * @returns {Promise} Promise object representing the updated chapter
    */
   updateChapter(id, chapter) {
-    return axios.put(`${API_URL}/chapitres/update/${id}`, chapter)
+    let data = new FormData();
+    data.append('title', chapter.title);
+    data.append('description', chapter.description);
+    data.append('thematic_id', chapter.thematicId);
+    if (chapter.image && chapter.image instanceof File) {
+      data.append('image', chapter.image);
+    }
+
+    console.log('Updating chapter:', chapter);
+    return axios.post(`${API_URL}/chapitres/update/${id}`, data)
       .then(response => response.data)
       .catch(error => {
         console.error('Error updating chapter:', error);
@@ -68,7 +82,7 @@ export default {
    * @returns {Promise} Promise object representing the progress
    */
   getProgress(data) {
-    return axios.post("chapitres/getProgress",data)
+    return axios.post("chapitres/getProgress", data)
       .then(response => response.data)
       .catch(error => {
         console.error('Error fetching chapter progress:', error);

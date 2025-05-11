@@ -83,7 +83,7 @@ class UtilisateurController extends Controller
     {
         $user = Utilisateur::find($id);
         if (!$user) {
-            return response()->json(['message' => 'Utilisateur non trouvé'], 404);
+            return response()->json(['message' => 'لم يتم العثور على المستخدم'], 404);
         }
         return response()->json($user);
     }
@@ -93,17 +93,17 @@ class UtilisateurController extends Controller
     {
         $user = Utilisateur::find($id);
         if (!$user) {
-            return response()->json('Utilisateur non trouvé', 404);
+            return response()->json('لم يتم العثور على المستخدم', 404);
         }
         $user->delete();
-        return response()->json('Utilisateur supprimé avec succès');
+        return response()->json('تم حذف المستخدم بنجاح');
     }
 
     // DELETE /api/Utilisateur/deleteAll
     public function deleteAll()
     {
         Utilisateur::truncate();
-        return response()->json('Tous les utilisateurs ont été supprimés');
+        return response()->json('تم حذف جميع المستخدمين');
     }
 
     // PUT /api/Utilisateur/update-profile/{id}
@@ -111,7 +111,7 @@ class UtilisateurController extends Controller
     {
         $user = Utilisateur::find($id);
         if (!$user) {
-            return response()->json(['message' => 'Utilisateur non trouvé'], 404);
+            return response()->json(['message' => 'لم يتم العثور على المستخدم'], 404);
         }
 
         $validated = $request->validate([
@@ -164,7 +164,7 @@ class UtilisateurController extends Controller
             'resetUrl' => "http://localhost:8081/reset-password?token={$token}&email={$user->email}"
         ], function ($message) use ($user) {
             $message->to($user->email)
-                    ->subject('Réinitialisation de votre mot de passe');
+                    ->subject('إعادة تعيين كلمة المرور الخاصة بك');
         });        
 
         return response()->json(['message' => 'Email envoyé !']);
@@ -182,7 +182,7 @@ class UtilisateurController extends Controller
         $user = Utilisateur::where('resetToken', $request->token)->first();
 
         if (!$user || Carbon::parse($user->tokenExpiry)->isPast()) {
-            return response()->json(['message' => 'Token invalide ou expiré.'], 400);
+            return response()->json(['message' => 'الرمز غير صالح أو منتهي الصلاحية.'], 400);
         }
 
         $user->mdpsCompte = Hash::make($request->password);
@@ -190,6 +190,6 @@ class UtilisateurController extends Controller
         $user->tokenExpiry = null;
         $user->save();
 
-        return response()->json(['message' => '✅ Mot de passe réinitialisé.']);
+        return response()->json(['message' => '✅تم إعادة تعيين كلمة المرور.']);
     }
 }
