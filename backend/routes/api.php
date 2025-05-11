@@ -70,7 +70,7 @@ Route::group(['prefix'=>'/chapitres'],function(){
 //SousChapitres Routes
 Route::group(['prefix'=>'/SousChapitres'],function(){
     Route::post('/updateSousChapitre/{id}',[SousChapitreController::class,'updateSousChapitre']);
-    Route::delete('/delete/{id}',[ChapitreController::class,'deleteChapitre']);
-    Route::post('/create',[ChapitreController::class,'addChapitre']);
-    Route::post('/update/{id}',[ChapitreController::class,'updateChapitre']);
+    Route::get('/getByChapitreId/{id}',[SousChapitreController::class,'getSousChapitres']);
+    Route::delete('/delete/{id}',[SousChapitreController::class,'deleteSousChapitre']);
+    
 }); 
