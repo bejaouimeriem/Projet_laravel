@@ -3,12 +3,15 @@
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\ThematicController;
 use App\Http\Controllers\UtilisateurController;
+use App\Http\Controllers\ChapitreController;
+use App\Http\Controllers\SousChapitreController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
+
 
 // Thematic Routes
 Route::get('/thematics',[ThematicController::class,'getAllThematics']);
@@ -30,7 +33,23 @@ Route::prefix('Utilisateur')->controller(UtilisateurController::class)->group(fu
     Route::post('/reset-password', 'resetPassword');
 });
 
+//Feedback Routes
 Route::group(['prefix'=>'/Feedback'],function(){
     Route::get('/getAll',[FeedbackController::class,'getAllFeedbacks']);
     Route::post('/create',[FeedbackController::class,'createFeedback']);
+}); 
+
+//Chapitres Routes
+Route::group(['prefix'=>'/chapitres'],function(){
+    Route::get('/get/{id}',[ChapitreController::class,'getChapitresByThematic']);
+    Route::delete('/delete/{id}',[ChapitreController::class,'deleteChapitre']);
+    Route::post('/create',[ChapitreController::class,'addChapitre']);
+    Route::post('/update/{id}',[ChapitreController::class,'updateChapitre']);
+}); 
+//SousChapitres Routes
+Route::group(['prefix'=>'/SousChapitres'],function(){
+    Route::post('/updateSousChapitre/{id}',[SousChapitreController::class,'updateSousChapitre']);
+    Route::delete('/delete/{id}',[ChapitreController::class,'deleteChapitre']);
+    Route::post('/create',[ChapitreController::class,'addChapitre']);
+    Route::post('/update/{id}',[ChapitreController::class,'updateChapitre']);
 }); 
