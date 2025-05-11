@@ -21,5 +21,9 @@ class Chapitre extends Model
     {
         return $this->belongsTo(Thematic::class);
     }
+    public function souschapitres()
+    {
+        return $this->hasMany(SousChapitre::class);
+    }
 
 }

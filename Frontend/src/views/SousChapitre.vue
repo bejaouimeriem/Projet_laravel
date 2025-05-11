@@ -26,7 +26,7 @@
             <div v-for="(sousChapitre, index) in sousChapitres" :key="index" class="card"
               @click="openModal(sousChapitre)">
               <div class="card-inner">
-                <img :src="require('@/assets/' + sousChapitre.image)" alt="chapitre" class="card-img" />
+                <img :src="getImageUrl(sousChapitre.image)" alt="chapitre" class="card-img" />
                 <div class="card-body">
                   <h3 class="card-title">{{ sousChapitre.title }}</h3>
                   <p class="card-desc">{{ sousChapitre.description }}</p>
@@ -73,7 +73,7 @@
 
     <div style="display: none; width: 0; height: 0; overflow: hidden;">
       <div v-for="(sousChapitre, index) in sousChapitres" :key="'loader-' + index">
-        <PdfEmbed v-if="sousChapitre.pdf" :source="`/PDFs/${sousChapitre.pdf}`"
+        <PdfEmbed v-if="sousChapitre.pdf" :source="getPDFUrl(sousChapitre.pdf)"
           @loaded="pdf => onPdfPreloaded(pdf, sousChapitre.id)" />
       </div>
     </div>
@@ -85,9 +85,10 @@
           allowfullscreen></iframe>
         <p>{{ selectedChapter.description }}</p>
         <div class="action-buttons">
-          <a :href="`/PDFs/${selectedChapter.pdf}`" target="_blank" download class="styled-download-link">
+          <a :href="getPDFUrl(selectedChapter.pdf)" target="_blank" download class="styled-download-link">
             <v-icon left>mdi-download</v-icon> تحميل الملف PDF
           </a>
+        
           <button class="view-btn" @click="showPdfViewer = true">
             <v-icon left>mdi-file-document-outline</v-icon> عرض الملف PDF
           </button>
@@ -106,7 +107,7 @@
             الصفحة التالية <v-icon small right>mdi-chevron-right</v-icon>
           </button>
         </div>
-        <PdfEmbed ref="pdfViewer" :source="`/PDFs/${selectedChapter.pdf}`" @loaded="onPdfLoaded" :page="currentPage"
+        <PdfEmbed ref="pdfViewer" :source="getPDFUrl(selectedChapter.pdf)" @loaded="onPdfLoaded" :page="currentPage"
           style="width: 100%; height: 80vh" />
       </div>
     </v-dialog>
@@ -168,6 +169,13 @@ export default {
     window.removeEventListener('resize', this.handleResize);
   },
   methods: {
+     getImageUrl(imagePath) {
+      return `http://localhost:8000/storage/${imagePath}`;
+    },
+    getPDFUrl(pdfPath) {
+      console.log("PDF URL:", pdfPath);
+      return `http://localhost:8000/storage/${pdfPath}`;
+    },
     // Méthodes pour le slider
     handleResize() {
       clearTimeout(this.resizeTimer);
@@ -360,13 +368,14 @@ export default {
         const idUser = store.user.id;
         const response = await SousChapitre.getSousChaptersByChapterId(chapitreId);
         this.sousChapitres = response;
+        
         const sousChapitreIds = this.sousChapitres.map(sc => sc.id);
         const res = await SousChapitre.getAllUserSouschapitreProgress(idUser, sousChapitreIds);
         this.sousChapitreProgress = res || [];
         // تحقق من أن البيانات مصفوفة
 
         console.log("Sous chapitres:", this.sousChapitres);
-        console.log("Progrès des sous chapitres:", this.sousChapitreProgress[0].lastPageRead);
+        console.log("Progrès des sous chapitres:", this.sousChapitreProgress[0]);
 
         // تطبيق بيانات الذاكرة المؤقتة
         this.sousChapitres.forEach(sc => {

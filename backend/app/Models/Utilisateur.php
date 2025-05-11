@@ -53,6 +53,6 @@ class Utilisateur extends Model
     // Relation avec modèle intermédiaire
     public function sousChapitreProgress()
     {
-        return $this->hasMany(UserSousChapitreProgress::class, 'user_id');
+        return $this->hasMany(UserSousChapitresProgress::class, 'user_id');
     }
 }

@@ -4,12 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class UserSousChapitreProgress extends Model
+class UserSousChapitresProgress extends Model
 {
     protected $fillable = [
         'user_id',
         'sous_chapitre_id',
         'progression',
+        'lastPageRead',
     ];
 
     public function utilisateur()
