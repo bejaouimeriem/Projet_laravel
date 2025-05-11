@@ -11,42 +11,21 @@
 
       <!-- Mode slider pour plus de 4 chapitres -->
       <div v-if="chapitres.length > 4" class="slider-container">
-        <v-btn
-          icon="mdi-chevron-right"
-          variant="text"
-          color="primary"
-          class="nav-btn prev-btn"
-          @click="slideLeft"
-          :disabled="currentSlide === 0"
-        />
+        <v-btn icon="mdi-chevron-right" variant="text" color="primary" class="nav-btn prev-btn" @click="slideLeft"
+          :disabled="currentSlide === 0" />
 
         <div class="slider-wrapper" ref="sliderWrapper">
-          <div
-            class="slider-track"
-            :style="{
-              transform: `translateX(${-currentSlide * slideOffset}px)`,
-            }"
-          >
-            <div
-              v-for="(chapitre, index) in chapitres"
-              :key="index"
-              class="card-slide"
-            >
+          <div class="slider-track" :style="{
+            transform: `translateX(${-currentSlide * slideOffset}px)`,
+          }">
+            <div v-for="(chapitre, index) in chapitres" :key="index" class="card-slide">
               <div class="card card-elevated">
                 <div class="card-link" @click="handleCardClick(chapitre)">
                   <div class="card-image-container">
-                    <img
-                      :src="require('@/assets/' + chapitre.image)"
-                      alt="Chapitre image"
-                      class="card-img"
-                    />
+                    <img :src="getImageUrl(chapitre.image)" alt="Chapitre image" class="card-img" />
                     <div class="card-overlay">
-                      <v-chip
-                        :color="getStatusColor(chapitre.pourcentage || 0)"
-                        size="small"
-                        class="status-chip"
-                        variant="elevated"
-                      >
+                      <v-chip :color="getStatusColor(chapitre.pourcentage || 0)" size="small" class="status-chip"
+                        variant="elevated">
                         {{ getStatusText(chapitre.pourcentage || 0) }}
                       </v-chip>
                     </div>
@@ -63,15 +42,9 @@
                           {{ Math.ceil(chapitre.pourcentage || 0) }}%
                         </div>
                       </div>
-                      <v-progress-linear
-                        :color="getProgressColor(chapitre.pourcentage || 0)"
-                        :buffer-value="100"
-                        buffer-color="light-blue-lighten-5"
-                        :model-value="chapitre.pourcentage || 0"
-                        height="10"
-                        rounded
-                        striped
-                      />
+                      <v-progress-linear :color="getProgressColor(chapitre.pourcentage || 0)" :buffer-value="100"
+                        buffer-color="light-blue-lighten-5" :model-value="chapitre.pourcentage || 0" height="10" rounded
+                        striped />
                       <div class="progress-text">
                         <div class="progress-detailed">
                           {{ chapitre.pourcentage || 0 }}% مكتمل
@@ -85,48 +58,25 @@
           </div>
         </div>
 
-        <v-btn
-          icon="mdi-chevron-left"
-          variant="text"
-          color="primary"
-          class="nav-btn next-btn"
-          @click="slideRight"
-          :disabled="currentSlide >= maxSlide"
-        />
+        <v-btn icon="mdi-chevron-left" variant="text" color="primary" class="nav-btn next-btn" @click="slideRight"
+          :disabled="currentSlide >= maxSlide" />
 
         <!-- Indicateurs de pagination -->
         <div class="slider-pagination">
-          <div
-            v-for="n in totalSlides"
-            :key="n"
-            class="pagination-dot"
-            :class="{ active: currentSlide === n - 1 }"
-            @click="currentSlide = n - 1"
-          />
+          <div v-for="n in totalSlides" :key="n" class="pagination-dot" :class="{ active: currentSlide === n - 1 }"
+            @click="currentSlide = n - 1" />
         </div>
       </div>
 
       <!-- Mode normal pour moins de 5 chapitres -->
       <div v-else class="cards-wrapper">
-        <div
-          v-for="(chapitre, index) in chapitres"
-          :key="index"
-          class="card card-elevated"
-        >
+        <div v-for="(chapitre, index) in chapitres" :key="index" class="card card-elevated">
           <div class="card-link" @click="handleCardClick(chapitre)">
             <div class="card-image-container">
-              <img
-                :src="require('@/assets/' + chapitre.image)"
-                alt="Chapitre image"
-                class="card-img"
-              />
+              <img :src="getImageUrl(chapitre.image)" alt="Chapitre image" class="card-img" />
               <div class="card-overlay">
-                <v-chip
-                  :color="getStatusColor(chapitre.pourcentage || 0)"
-                  size="small"
-                  class="status-chip"
-                  variant="elevated"
-                >
+                <v-chip :color="getStatusColor(chapitre.pourcentage || 0)" size="small" class="status-chip"
+                  variant="elevated">
                   {{ getStatusText(chapitre.pourcentage || 0) }}
                 </v-chip>
               </div>
@@ -143,15 +93,9 @@
                     {{ Math.ceil(chapitre.pourcentage || 0) }}%
                   </div>
                 </div>
-                <v-progress-linear
-                  :color="getProgressColor(chapitre.pourcentage || 0)"
-                  :buffer-value="100"
-                  buffer-color="light-blue-lighten-5"
-                  :model-value="chapitre.pourcentage || 0"
-                  height="10"
-                  rounded
-                  striped
-                />
+                <v-progress-linear :color="getProgressColor(chapitre.pourcentage || 0)" :buffer-value="100"
+                  buffer-color="light-blue-lighten-5" :model-value="chapitre.pourcentage || 0" height="10" rounded
+                  striped />
                 <div class="progress-text">
                   <div class="progress-detailed">
                     {{ chapitre.pourcentage || 0 }}% مكتمل
@@ -166,16 +110,17 @@
   </div>
   <Footer />
   <v-dialog v-model="showLogin" persistent width="auto">
-      <Login @closeLogin="showLogin = false, showSignUp = true" @openSignUp="showLogin = false,showSignUp= true " @openForgotPassword="showLogin = false,showForgotPassword= true "/>
-    </v-dialog>
+    <Login @closeLogin="showLogin = false, showSignUp = true" @openSignUp="showLogin = false, showSignUp = true"
+      @openForgotPassword="showLogin = false, showForgotPassword = true" />
+  </v-dialog>
 
-    <v-dialog v-model="showForgotPassword" persistent width="auto">
-      <ForgotPassword @closeForgotPassword="showForgotPassword = false, showLogin = true" />
-    </v-dialog>
+  <v-dialog v-model="showForgotPassword" persistent width="auto">
+    <ForgotPassword @closeForgotPassword="showForgotPassword = false, showLogin = true" />
+  </v-dialog>
 
-    <v-dialog v-model="showSignUp" persistent width="auto">
-      <SignUp @closeSignUp="showSignUp = false" @openLogin="showLogin = true, showSignUp = false" />
-    </v-dialog>
+  <v-dialog v-model="showSignUp" persistent width="auto">
+    <SignUp @closeSignUp="showSignUp = false" @openLogin="showLogin = true, showSignUp = false" />
+  </v-dialog>
 </template>
 
 <script>
@@ -203,7 +148,7 @@ export default {
       showUpdateAccount: false,
       chapitres: [],
       user: {
-        name: '', 
+        name: '',
         email: ''
       },
       currentSlide: 0,
@@ -213,7 +158,7 @@ export default {
       autoSlideInterval: null,
       showSignUp: false,
       showLogin: false,
-      showForgotPassword : false
+      showForgotPassword: false
     };
   },
   computed: {
@@ -225,14 +170,18 @@ export default {
     },
   },
   methods: {
+    getImageUrl(imagePath) {
+      console.log("Image path:", imagePath);
+      return `http://localhost:8000/storage/${imagePath}`;
+    },
     handleCardClick(chapitre) {
       const store = useUserStore();
       const isAuthenticated = store.user && store.user.id;
 
       if (isAuthenticated) {
-        this.$router.push({ 
-          name: 'SousChapitre', 
-          params: { chapitreId: chapitre.id, chapitreTitle: chapitre.title } 
+        this.$router.push({
+          name: 'SousChapitre',
+          params: { chapitreId: chapitre.id, chapitreTitle: chapitre.title }
         });
       } else {
         this.showLogin = true;
@@ -242,34 +191,34 @@ export default {
     // Gestion du slider
     calculateSliderParams() {
       if (!this.$refs.sliderWrapper) return;
-      
+
       const containerWidth = this.$refs.sliderWrapper.clientWidth;
       const cardsPerView = Math.floor(containerWidth / this.slideOffset);
       this.maxSlide = Math.max(0, Math.ceil(this.chapitres.length / cardsPerView) - 1);
       this.totalSlides = this.maxSlide + 1;
-      
+
       // Limiter currentSlide si nécessaire
       if (this.currentSlide > this.maxSlide) {
         this.currentSlide = this.maxSlide;
       }
     },
-    
+
     slideLeft() {
       if (this.currentSlide > 0) {
         this.currentSlide--;
       }
     },
-    
+
     slideRight() {
       if (this.currentSlide < this.maxSlide) {
         this.currentSlide++;
       }
     },
-    
+
     handleResize() {
       this.calculateSliderParams();
     },
-    
+
     // Fonctions pour déterminer les couleurs et le texte en fonction du pourcentage
     getProgressColor(progress) {
       if (progress < 30) return 'red-darken-1';
@@ -277,7 +226,7 @@ export default {
       if (progress < 90) return 'light-blue-darken-1';
       return 'green-darken-1';
     },
-    
+
     getStatusColor(progress) {
       if (progress === 0) return 'grey';
       if (progress < 30) return 'red';
@@ -286,7 +235,7 @@ export default {
       if (progress < 100) return 'teal';
       return 'green';
     },
-    
+
     getStatusText(progress) {
       if (progress === 0) return 'لم يبدأ';
       if (progress < 30) return 'بداية';
@@ -295,15 +244,16 @@ export default {
       if (progress < 100) return 'قريب من الإكمال';
       return 'مكتمل';
     },
-    
+
     // Charger tous les chapitres
     async loadAllSuperChapitre(thematicId) {
       try {
         const response = await SuperChapitre.getChaptersByThematic(thematicId);
+        console.log("Chapitres récupérés:", response);
         // تأكد أن البيانات مصفوفة
         this.chapitres = Array.isArray(response) ? response : [];
         await this.loadProgressInfo();
-        
+
         // Calculer les paramètres du slider après chargement
         this.$nextTick(() => {
           this.calculateSliderParams();
@@ -314,14 +264,14 @@ export default {
         this.chapitres = []; // تعيين مصفوفة فارغة كإحتياطي
       }
     },
-    
+
     // Méthode pour charger la progression de chaque chapitre
     async loadProgressInfo() {
       for (const chapitre of this.chapitres) {
         try {
           const store = useUserStore();
           const id = store.user.id;
-          
+
           // Obtenir le pourcentage de progression d'un chapitre
           const progressData = [id, chapitre.id];  // [userId, chapitreId]
 
@@ -338,7 +288,7 @@ export default {
         }
       }
     },
-    
+
 
     async loadUserInfo() {
       try {
@@ -367,7 +317,7 @@ export default {
   mounted() {
     this.loadAllSuperChapitre(this.thematicId);
     this.loadUserInfo();
-    
+
     // Ajouter l'écouteur de redimensionnement
     window.addEventListener('resize', this.handleResize);
   },
@@ -395,11 +345,9 @@ export default {
   left: 0;
   right: 0;
   height: 200px;
-  background: linear-gradient(
-    180deg,
-    rgba(25, 118, 210, 0.05) 0%,
-    rgba(255, 255, 255, 0) 100%
-  );
+  background: linear-gradient(180deg,
+      rgba(25, 118, 210, 0.05) 0%,
+      rgba(255, 255, 255, 0) 100%);
   z-index: 1;
 }
 
@@ -436,7 +384,8 @@ export default {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 50px; /* Espacement entre les cartes */
+  gap: 50px;
+  /* Espacement entre les cartes */
   padding: 40px 0;
 }
 
@@ -597,9 +546,11 @@ export default {
 
 .card-slide {
   min-width: 320px;
-  padding: 0 15px; /* Espacement horizontal entre les cartes dans le slider */
+  padding: 0 15px;
+  /* Espacement horizontal entre les cartes dans le slider */
   box-sizing: border-box;
-  margin: 0 15px; /* Ajout de marges latérales pour l'espacement */
+  margin: 0 15px;
+  /* Ajout de marges latérales pour l'espacement */
 }
 
 .nav-btn {
@@ -662,7 +613,8 @@ export default {
 /* Responsive */
 @media (max-width: 1024px) {
   .cards-wrapper {
-    gap: 30px; /* Réduire légèrement l'espacement pour les écrans moyens */
+    gap: 30px;
+    /* Réduire légèrement l'espacement pour les écrans moyens */
   }
 
   .card {
@@ -675,7 +627,8 @@ export default {
 
   .card-slide {
     min-width: 280px;
-    margin: 0 10px; /* Réduire les marges pour les écrans moyens */
+    margin: 0 10px;
+    /* Réduire les marges pour les écrans moyens */
   }
 }
 
@@ -695,11 +648,13 @@ export default {
   }
 
   .cards-wrapper {
-    gap: 20px; /* Réduire davantage l'espacement pour les petits écrans */
+    gap: 20px;
+    /* Réduire davantage l'espacement pour les petits écrans */
   }
 
   .card-slide {
-    margin: 0 8px; /* Réduire encore les marges pour les petits écrans */
+    margin: 0 8px;
+    /* Réduire encore les marges pour les petits écrans */
   }
 
   .card-desc {
@@ -715,13 +670,15 @@ export default {
 
   .card-slide {
     min-width: 260px;
-    margin: 0 5px; /* Marges minimales pour très petits écrans */
+    margin: 0 5px;
+    /* Marges minimales pour très petits écrans */
   }
 
   .cards-wrapper {
     flex-direction: column;
     align-items: center;
-    gap: 30px; /* Conserver un bon espacement vertical */
+    gap: 30px;
+    /* Conserver un bon espacement vertical */
   }
 }
 </style>

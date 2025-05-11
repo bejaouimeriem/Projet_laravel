@@ -1,4 +1,3 @@
-
 <template>
   <div class="table-card">
     <div class="card-header">
@@ -14,32 +13,18 @@
           <i class="icon">🔍</i>
         </button>
         <div class="thematic-selector">
-          <select
-            v-if="thematics.length > 0"
-            v-model="selectedThematicId"
-            class="thematic-select"
-            @change="loadChaptersByThematic"
-          >
+          <select v-if="thematics.length > 0" v-model="selectedThematicId" class="thematic-select"
+            @change="loadChaptersByThematic">
             <option value="" disabled>-- اختر مجال --</option>
-            <option
-              v-for="thematic in thematics"
-              :key="thematic.id"
-              :value="thematic.id"
-            >
+            <option v-for="thematic in thematics" :key="thematic.id" :value="thematic.id">
               {{ thematic.nom }}
             </option>
           </select>
           <div v-if="selectedThematicId" class="thematic-actions">
-            <button
-              class="edit-thematic-btn"
-              @click="editThematic(selectedThematicId)"
-            >
+            <button class="edit-thematic-btn" @click="editThematic(selectedThematicId)">
               <i class="icon">✏️</i>
             </button>
-            <button
-              class="delete-thematic-btn"
-              @click="deleteThematic(selectedThematicId)"
-            >
+            <button class="delete-thematic-btn" @click="deleteThematic(selectedThematicId)">
               <i class="icon">🗑</i>
             </button>
           </div>
@@ -50,14 +35,8 @@
     <!-- Search bar -->
     <div v-if="showSearch" class="search-container">
       <div class="search-input-wrapper">
-        <input
-          type="text"
-          v-model="searchTerm"
-          class="search-input"
-          placeholder="ابحث عن فصل..."
-          @input="performSearch"
-          dir="rtl"
-        />
+        <input type="text" v-model="searchTerm" class="search-input" placeholder="ابحث عن فصل..." @input="performSearch"
+          dir="rtl" />
         <button v-if="searchTerm" class="clear-search" @click="clearSearch">
           ✕
         </button>
@@ -84,49 +63,31 @@
         </thead>
         <tbody>
           <!-- Render flattened hierarchy -->
-          <tr
-            v-for="item in displayedChapters"
-            :key="item.id"
-            class="table-row"
-            :class="{
-              'child-row': item.level === 1,
-              'grandchild-row': item.level === 2,
-              'third-level-row': item.level >= 3,
-              'search-highlight': isSearchMatch(item),
-            }"
-          >
+          <tr v-for="item in displayedChapters" :key="item.id" class="table-row" :class="{
+            'child-row': item.level === 1,
+            'grandchild-row': item.level === 2,
+            'third-level-row': item.level >= 3,
+            'search-highlight': isSearchMatch(item),
+          }">
             <td class="id-column">{{ item.numbering }}</td>
             <td class="title-column">
-              <span
-                class="title-content"
-                :style="{ paddingRight: item.level * 20 + 'px' }"
-              >
+              <span class="title-content" :style="{ paddingRight: item.level * 20 + 'px' }">
                 {{ item.title }}
                 <span v-if="item.pourcentage > 0" class="progress-indicator">
-                  
+
                 </span>
               </span>
             </td>
             <td class="actions-column">
               <div class="action-buttons">
-                <button
-                  v-if="hasChildren(item)"
-                  class="view-btn"
-                  @click="toggleExpand(item.id)"
-                >
+                <button v-if="hasChildren(item)" class="view-btn" @click="toggleExpand(item.id)">
                   <i class="icon">{{ isExpanded(item.id) ? "👁️" : "👁️" }}</i>
                 </button>
-                <button
-                  class="add-btn"
-                  v-if="hasChildren(item) || getChapterType(item) === 'main'"
-                  @click="addNewChapter(item.id)"
-                >
+                <button class="add-btn" v-if="hasChildren(item) || getChapterType(item) === 'main'"
+                  @click="addNewChapter(item.id)">
                   <i class="icon">➕</i>
                 </button>
-                <button
-                  class="edit-btn"
-                  @click="editChapter(item)"
-                >
+                <button class="edit-btn" @click="editChapter(item)">
                   <i class="icon">✏️</i>
                 </button>
                 <button class="delete-btn" @click="deleteChapter(item.id)">
@@ -144,21 +105,11 @@
 
     <div class="table-footer">
       <div class="pagination">
-        <button
-          class="page-btn"
-          :disabled="currentPage <= 1"
-          @click="changePage(-1)"
-        >
+        <button class="page-btn" :disabled="currentPage <= 1" @click="changePage(-1)">
           <i class="icon">⬅️</i>
         </button>
-        <span class="page-info"
-          >صفحة {{ currentPage }} من {{ totalPages }}</span
-        >
-        <button
-          class="page-btn"
-          :disabled="currentPage >= totalPages"
-          @click="changePage(1)"
-        >
+        <span class="page-info">صفحة {{ currentPage }} من {{ totalPages }}</span>
+        <button class="page-btn" :disabled="currentPage >= totalPages" @click="changePage(1)">
           <i class="icon">➡️</i>
         </button>
       </div>
@@ -175,12 +126,7 @@
         <div class="modal-body">
           <div class="form-group">
             <label for="thematicName">اسم المجال</label>
-            <input
-              type="text"
-              id="thematicName"
-              v-model="newThematic.nom"
-              class="form-control"
-            />
+            <input type="text" id="thematicName" v-model="newThematic.nom" class="form-control" />
           </div>
 
         </div>
@@ -202,66 +148,34 @@
           <!-- Standard fields for both chapters and sub-chapters -->
           <div class="form-group">
             <label for="chapterTitle">عنوان الفصل</label>
-            <input
-              type="text"
-              id="chapterTitle"
-              v-model="currentChapter.title"
-              class="form-control"
-            />
+            <input type="text" id="chapterTitle" v-model="currentChapter.title" class="form-control" />
           </div>
           <div class="form-group">
             <label for="chapterDescription">وصف الفصل</label>
-            <textarea
-              id="chapterDescription"
-              v-model="currentChapter.description"
-              class="form-control"
-            ></textarea>
+            <textarea id="chapterDescription" v-model="currentChapter.description" class="form-control"></textarea>
           </div>
           <div class="form-group">
             <label for="chapterImage">الصورة</label>
-            <input
-              type="text"
-              id="chapterImage"
-              v-model="currentChapter.image"
-              class="form-control"
-              placeholder="رابط الصورة"
-            />
+            <input type="file" id="chapterImage" @change="handleFileUpload" class="form-control"
+              placeholder="رابط الصورة" />
           </div>
 
           <!-- Additional fields for sous-chapters only -->
           <div v-if="parentId" class="form-group">
             <label for="videoLink">رابط الفيديو</label>
-            <input
-              type="text"
-              id="videoLink"
-              v-model="currentChapter.lien_video"
-              class="form-control"
-            />
+            <input type="text" id="videoLink" v-model="currentChapter.lien_video" class="form-control" />
           </div>
           <div v-if="parentId" class="form-group">
             <label for="pdfLink">ملف PDF</label>
-            <input
-              type="text"
-              id="pdfLink"
-              v-model="currentChapter.pdf"
-              class="form-control"
-            />
+            <input type="file" id="pdfLink" @change="handlePDF" class="form-control" />
           </div>
 
           <!-- Thematic selection for main chapters (when adding new) -->
           <div v-if="!parentId && !isEditing" class="form-group">
             <label for="thematicSelect">المجال</label>
-            <select
-              id="thematicSelect"
-              v-model="currentChapter.thematicId"
-              class="form-control"
-            >
+            <select id="thematicSelect" v-model="currentChapter.thematicId" class="form-control">
               <option value="" disabled>-- اختر مجال --</option>
-              <option
-                v-for="thematic in thematics"
-                :key="thematic.id"
-                :value="thematic.id"
-              >
+              <option v-for="thematic in thematics" :key="thematic.id" :value="thematic.id">
                 {{ thematic.nom }}
               </option>
             </select>
@@ -564,7 +478,7 @@ export default {
           description: chapter.description,
           image: chapter.image,
           pourcentage: chapter.pourcentage,
-          sousChapitres: chapter.sousChapitres || [],
+          sousChapitres: chapter.souschapitres || [],
         }));
 
         console.log("Transformed chapters:", this.chapters);
@@ -755,8 +669,29 @@ export default {
 
       this.showModal = true;
     },
+    async handlePDF(event){
+       const file = event.target.files[0];
+      if (file) {
+        this.currentChapter.pdf = file;
+        const reader = new FileReader();
+      
+        reader.readAsDataURL(file);
+      }
+    },
+    async handleFileUpload(event) {
+      const file = event.target.files[0];
+      if (file) {
+        this.currentChapter.image = file;
+        const reader = new FileReader();
+        // reader.onload = (e) => {
+        //   this.profilePic = e.target.result;
+        // };
+        reader.readAsDataURL(file);
+      }
 
+    },
     async saveChapter() {
+
       if (!this.currentChapter.title.trim()) {
         this.error = "الرجاء إدخال عنوان الفصل";
         return;
@@ -774,7 +709,7 @@ export default {
               image: this.currentChapter.image,
               lienVideo: this.currentChapter.lien_video,
               pdf: this.currentChapter.pdf,
-              chapitreId: this.parentId ,
+              chapitreId: this.parentId,
             };
             console.log("Updating sous-chapter with data:", sousChapterData);
             await SousChapterService.updateSousChapter(
@@ -787,9 +722,9 @@ export default {
               title: this.currentChapter.title,
               description: this.currentChapter.description,
               image: this.currentChapter.image,
-              thematicId:  this.selectedThematicId,
+              thematicId: this.selectedThematicId,
             };
-
+            
             await ChapterService.updateChapter(
               this.currentChapter.id,
               chapterData
