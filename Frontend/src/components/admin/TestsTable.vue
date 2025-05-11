@@ -1,4 +1,3 @@
-
 <template>
   <div class="tests-dashboard">
     <div class="dashboard-header">
@@ -36,7 +35,7 @@
 
           <div class="test-questions-container">
             <div class="test-questions-count">
-              <span class="questions-value">{{ test.questions ? test.questions.length : 0 }}</span>
+              <span class="questions-value">{{ test.testQuestionsCount || 0 }}</span>
               <span class="questions-label">أسئلة</span>
             </div>
           </div>
@@ -89,7 +88,7 @@
             <div class="responses-list"
               v-if="question.showResponses && question.responses && question.responses.length > 0">
               <div class="response-card" v-for="(response, rIndex) in question.responses" :key="rIndex">
-                <div class="response-text">{{ response.text }}</div>
+                <div class="response-text">{{ response.text || response.contenu }}</div>
               </div>
             </div>
             <div class="empty-responses" v-else-if="question.showResponses">
@@ -105,36 +104,23 @@
 
     <!-- Pagination Controls -->
     <div class="pagination-controls" v-if="filteredTests.length > itemsPerPage">
-      <button 
-        class="pagination-button" 
-        :disabled="currentPage === 1" 
-        @click="goToPage(currentPage - 1)"
-      >
+      <button class="pagination-button" :disabled="currentPage === 1" @click="goToPage(currentPage - 1)">
         <span class="pagination-icon">◀</span>
         السابق
       </button>
-      
+
       <div class="page-numbers">
-        <button 
-          v-for="page in displayedPageNumbers" 
-          :key="page" 
-          class="page-number"
-          :class="{ active: currentPage === page }"
-          @click="goToPage(page)"
-        >
+        <button v-for="page in displayedPageNumbers" :key="page" class="page-number"
+          :class="{ active: currentPage === page }" @click="goToPage(page)">
           {{ page }}
         </button>
       </div>
-      
-      <button 
-        class="pagination-button" 
-        :disabled="currentPage === totalPages" 
-        @click="goToPage(currentPage + 1)"
-      >
+
+      <button class="pagination-button" :disabled="currentPage === totalPages" @click="goToPage(currentPage + 1)">
         التالي
         <span class="pagination-icon">▶</span>
       </button>
-      
+
       <div class="pagination-info">
         <select v-model="itemsPerPage" @change="handleItemsPerPageChange" class="items-per-page">
           <option :value="5">5 لكل صفحة</option>
@@ -326,12 +312,12 @@ export default {
       const halfButtons = Math.floor(this.maxPageButtons / 2);
       let startPage = Math.max(1, this.currentPage - halfButtons);
       let endPage = Math.min(this.totalPages, startPage + this.maxPageButtons - 1);
-      
+
       // Adjust if we're near the end
       if (endPage - startPage + 1 < this.maxPageButtons) {
         startPage = Math.max(1, endPage - this.maxPageButtons + 1);
       }
-      
+
       const pages = [];
       for (let i = startPage; i <= endPage; i++) {
         pages.push(i);
@@ -382,24 +368,36 @@ export default {
       // Reset to first page when items per page changes
       this.currentPage = 1;
     },
-    
+
     async fetchTests() {
       try {
         this.loading = true;
-        const tests = await TestService.getAllTests();
+
+        // Use the new method to get tests with questions count
+        const tests = await TestService.getTestsWithQuestionsCount();
         console.log(`Fetched ${tests.length} tests:`, tests);
 
-        this.tests = tests.map(test => ({
-          ...test,
-          showQuestions: false,
-          title: test.nomTest,
-          type_test: test.typeTest,
-          utilisable: test.utilisable === 1,
-          lastUpdated: this.formatDate(new Date())
-        }));
+        // Process each test to ensure proper structure
+        this.tests = tests.map(test => {
+          return {
+            ...test,
+            // Ensure title is properly set
+            title: test.title || test.nomTest || '',
+            // Ensure type_test is properly set
+            type_test: test.type_test || test.typeTest || '',
+            // Convert utilisable to boolean if it's 0 or 1
+            utilisable: test.utilisable === 1 || test.utilisable === true,
+            // Initialize questions array if missing
+            questions: test.questions || [],
+            // Initialize showQuestions flag
+            showQuestions: false,
+            // Ensure proper question count display - use testQuestionsCount if available
+            testQuestionsCount: test.testQuestionsCount || 0
+          };
+        });
       } catch (error) {
         console.error("Error fetching tests:", error);
-        this.error = "  فشل في تحميل الاختبارات";
+        this.error = "فشل في تحميل الاختبارات";
       } finally {
         this.loading = false;
       }
@@ -410,32 +408,41 @@ export default {
       if (index !== -1) {
         const updatedTest = { ...test, showQuestions: !test.showQuestions };
 
-        try {
-          this.loading = true;
+        // If we're showing questions and they haven't been loaded yet
+        if (updatedTest.showQuestions && (!updatedTest.questions || updatedTest.questions.length === 0)) {
+          try {
+            this.loading = true;
 
-          const questions = await QuestionService.getAllQuestions(test);
-          console.log(`Fetched ${questions.length} questions:`, questions);
+            const questions = await QuestionService.getAllQuestions(test);
+            console.log(`Fetched ${questions.length} questions:`, questions);
 
-          updatedTest.questions = questions.map(q => ({
-            ...q,
-            showResponses: false,
-            text: q.contenu,
-            responses: q.reponses ? q.reponses.map(r => ({
-              ...r,
-              text: r.contenu
-            })) : []
-          }));
-        } catch (error) {
-          console.error("Error fetching test questions:", error);
-          this.error = "فشل في تحميل الأسئلة";
-          updatedTest.showQuestions = false;
-        } finally {
-          this.loading = false;
+            // Update the question count in the test object directly
+            updatedTest.testQuestionsCount = questions.length;
+
+            // Format questions data for consistent access
+            updatedTest.questions = questions.map(q => ({
+              ...q,
+              showResponses: false,
+              text: q.contenu || q.text || '', // Ensure text property exists
+              id: q.id,
+              responses: q.reponses ? q.reponses.map(r => ({
+                ...r,
+                text: r.contenu || r.text || '' // Ensure text property exists
+              })) : []
+            }));
+          } catch (error) {
+            console.error("Error fetching test questions:", error);
+            this.error = "فشل في تحميل الأسئلة";
+            updatedTest.showQuestions = false;
+          } finally {
+            this.loading = false;
+          }
         }
 
-
+        // Replace the test with our updated version
         this.tests.splice(index, 1, updatedTest);
 
+        // If we're hiding questions, make sure to hide all responses too
         if (!updatedTest.showQuestions && updatedTest.questions) {
           const updatedQuestions = updatedTest.questions.map(q => ({
             ...q,
@@ -446,21 +453,45 @@ export default {
       }
     },
 
-    toggleViewResponses(test, question) {
+    async toggleViewResponses(test, question) {
       const testIndex = this.tests.findIndex(t => t.id === test.id);
       if (testIndex !== -1) {
         const questionIndex = this.tests[testIndex].questions.findIndex(q => q.id === question.id);
         if (questionIndex !== -1) {
-          const updatedQuestions = [...this.tests[testIndex].questions];
+          try {
+            // Toggle the showResponses flag
+            const showResponses = !this.tests[testIndex].questions[questionIndex].showResponses;
 
-          const updatedQuestion = {
-            ...updatedQuestions[questionIndex],
-            showResponses: !updatedQuestions[questionIndex].showResponses
-          };
+            // If we're showing responses and they haven't been loaded yet
+            if (showResponses && (!this.tests[testIndex].questions[questionIndex].responses ||
+              this.tests[testIndex].questions[questionIndex].responses.length === 0)) {
 
-          updatedQuestions.splice(questionIndex, 1, updatedQuestion);
+              this.loading = true;
+              console.log(`Loading responses for question ID: ${question.id}`);
 
-          this.tests[testIndex].questions = updatedQuestions;
+              // Fetch responses for this question
+              const responses = await ResponseService.getResponsesByQuestionId(question.id);
+              console.log(`Fetched ${responses.length} responses for question:`, responses);
+
+              // Format responses data for consistent access
+              const formattedResponses = responses.map(r => ({
+                ...r,
+                text: r.contenu || r.text || '' // Ensure text property exists
+              }));
+
+              // Update the responses in our question object
+              this.tests[testIndex].questions[questionIndex].responses = formattedResponses;
+            }
+
+            // Update the showResponses flag
+            this.tests[testIndex].questions[questionIndex].showResponses = showResponses;
+
+          } catch (error) {
+            console.error("Error fetching responses:", error);
+            this.error = "فشل في تحميل الإجابات";
+          } finally {
+            this.loading = false;
+          }
         }
       }
     },
@@ -551,7 +582,7 @@ export default {
         this.showDeleteModal = false;
         this.testToDelete = null;
         this.showSuccessMessage("تم حذف الاختبار بنجاح");
-        
+
         // Handle pagination updates after deletion
         if (this.paginatedTests.length === 0 && this.currentPage > 1) {
           this.currentPage = this.currentPage - 1;
@@ -689,7 +720,7 @@ export default {
           });
 
           this.showSuccessMessage("تم إنشاء الاختبار بنجاح");
-          
+
           // Go to the last page if we added a new test
           this.currentPage = this.totalPages;
         }
@@ -790,7 +821,7 @@ export default {
         ]
       };
     },
-    
+
 
     async deleteQuestion(test, question) {
       try {
@@ -1380,13 +1411,14 @@ export default {
     justify-content: flex-end;
   }
 }
+
 .modal {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0,0,0,0.5);
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1399,7 +1431,7 @@ export default {
   border-radius: 8px;
   width: 90%;
   max-width: 500px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
 }
 
 .modal-content h3 {
@@ -1488,7 +1520,8 @@ export default {
   color: #444;
 }
 
-.error-alert, .success-alert {
+.error-alert,
+.success-alert {
   position: fixed;
   top: 20px;
   right: 20px;
@@ -1507,22 +1540,26 @@ export default {
   border-left: 4px solid #4CAF50;
 }
 
-.error-content, .success-content {
+.error-content,
+.success-content {
   padding: 12px 15px;
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
-.error-icon, .success-icon {
+.error-icon,
+.success-icon {
   font-size: 20px;
 }
 
-.error-message, .success-message {
+.error-message,
+.success-message {
   flex: 1;
 }
 
-.error-close, .success-close {
+.error-close,
+.success-close {
   background: none;
   border: none;
   font-size: 18px;
@@ -1532,8 +1569,15 @@ export default {
 }
 
 @keyframes slideIn {
-  from { transform: translateX(100%); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
 /* Pagination styles */
@@ -1606,46 +1650,46 @@ export default {
     align-items: flex-start;
     gap: 15px;
   }
-  
+
   .actions-group {
     width: 100%;
     flex-direction: column;
     gap: 10px;
   }
-  
+
   .search-container {
     width: 100%;
   }
-  
+
   .search-input {
     width: 100%;
   }
-  
+
   .add-button {
     width: 100%;
     justify-content: center;
   }
-  
+
   .test-card {
     flex-direction: column;
     align-items: flex-start;
     gap: 15px;
   }
-  
+
   .test-questions-container {
     margin: 0;
     align-self: flex-start;
   }
-  
+
   .test-actions {
     align-self: stretch;
     justify-content: space-between;
   }
-  
+
   .pagination-controls {
     flex-wrap: wrap;
   }
-  
+
   .pagination-info {
     width: 100%;
     justify-content: center;

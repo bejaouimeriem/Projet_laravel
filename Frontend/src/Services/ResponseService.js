@@ -22,6 +22,19 @@ export default {
             throw err;
         }
     },
+    
+    // New method to get responses for a specific question
+    async getResponsesByQuestionId(questionId) {
+        try {
+            console.log(`Fetching responses for question ID: ${questionId}`);
+            const response = await Axios.get(`${API_URL}/getByQuestion/${questionId}`);
+            console.log(`Got ${response.data.length} responses:`, response.data);
+            return response.data;
+        } catch (err) {
+            console.error(`Error getting responses for question ${questionId}:`, err);
+            throw err;
+        }
+    },
 
     async createReponse(reponseRequest) {
         try {
