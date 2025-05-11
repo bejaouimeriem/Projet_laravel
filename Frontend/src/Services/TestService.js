@@ -33,7 +33,51 @@ export default {
             throw err;
         }
     },
+    async getTestsWithQuestionsCount() {
+        try {
+            // First get all tests
+            const response = await Axios.get(`${API_URL}/getAll`);
+            const tests = response.data;
 
+            // For each test, get the question count using the questions endpoint
+            const testsWithCounts = await Promise.all(tests.map(async (test) => {
+                try {
+                    // Use the existing endpoint for questions
+                    const questionsResponse = await Axios.post('http://localhost:8000/api/Question/getQuestionsTest', {
+                        id: test.id
+                    });
+
+                    return {
+                        ...test,
+                        // Format test data for consistent access
+                        title: test.nomTest || test.title || '',
+                        type_test: test.typeTest || test.type_test || '',
+                        utilisable: test.utilisable === 1 || test.utilisable === true,
+                        // Add the questions count
+                        testQuestionsCount: questionsResponse.data.length,
+                        // Format date
+                        lastUpdated: new Date(test.updated_at || test.createdAt || Date.now()).toLocaleDateString('ar-SA')
+                    };
+                } catch (err) {
+                    console.warn(`Could not fetch questions for test ${test.id}:`, err);
+                    // Return test with default count
+                    return {
+                        ...test,
+                        title: test.nomTest || test.title || '',
+                        type_test: test.typeTest || test.type_test || '',
+                        utilisable: test.utilisable === 1 || test.utilisable === true,
+                        testQuestionsCount: 0,
+                        lastUpdated: new Date(test.updated_at || test.createdAt || Date.now()).toLocaleDateString('ar-SA')
+                    };
+                }
+            }));
+
+            return testsWithCounts;
+        } catch (err) {
+            console.error('Error fetching tests with question count:', err);
+            throw err;
+        }
+    },
     async createTest(test) {
         try {
             const response = await Axios.post(`${API_URL}/create`, test);
@@ -76,7 +120,7 @@ export default {
             throw err;
         }
     },
-    
+
     async getTestsByType(type) {
         try {
             const allTests = await this.getAllTests();

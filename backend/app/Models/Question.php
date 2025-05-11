@@ -14,6 +14,17 @@ class Question extends Model
         'test_id',
     ];
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        // When a question is deleted, delete all related responses
+        static::deleting(function ($question) {
+            $question->reponses()->each(function ($reponse) {
+                $reponse->delete(); 
+            });
+        });
+    }
     public function test()
     {
         return $this->belongsTo(Test::class);
@@ -21,6 +32,6 @@ class Question extends Model
 
     public function reponses()
     {
-        return $this->hasMany(Reponse::class);
+        return $this->hasMany(Reponse::class,'question_id');
     }
 }

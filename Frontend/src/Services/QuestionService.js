@@ -59,6 +59,8 @@ export default {
 
     async updateQuestion(id, questionRequest) {
         try {
+                    console.log(`Updating question with id ${id} and request:`, questionRequest);
+
             const response = await Axios.put(`${API_URL}/update/${id}`, questionRequest);
             return response.data;
         } catch (err) {

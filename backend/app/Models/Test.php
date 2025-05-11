@@ -19,4 +19,15 @@ class Test extends Model
     {
         return $this->hasMany(Question::class);
     }
+     protected static function boot()
+    {
+        parent::boot();
+
+        // When a test is deleted, delete all related questions
+        static::deleting(function ($test) {
+            $test->questions()->each(function ($question) {
+                $question->delete(); // This will trigger Question's deleting event
+            });
+        });
+    }
 }
