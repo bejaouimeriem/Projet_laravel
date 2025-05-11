@@ -67,6 +67,7 @@ Route::group(['prefix'=>'/chapitres'],function(){
     Route::delete('/delete/{id}',[ChapitreController::class,'deleteChapitre']);
     Route::post('/create',[ChapitreController::class,'addChapitre']);
     Route::post('/update/{id}',[ChapitreController::class,'updateChapitre']);
+    Route::post('/getProgress',[ChapitreController::class,'getProgress']);
 }); 
 //SousChapitres Routes
 Route::group(['prefix'=>'/SousChapitres'],function(){
