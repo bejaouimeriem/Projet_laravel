@@ -6,6 +6,7 @@ use App\Http\Controllers\UtilisateurController;
 use App\Http\Controllers\TestController;
 use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\ReponseController;
+use App\Http\Controllers\StatisticsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -69,3 +70,5 @@ Route::prefix('Reponse')->group(function () {
     Route::delete('/deleteAll', [ReponseController::class, 'deleteAll']);
     Route::get('/getByQuestion/{questionId}', [ReponseController::class, 'getByQuestion']);
 });
+Route::get('/statistics', [StatisticsController::class, 'getStatistics']);
+

@@ -3,7 +3,8 @@
     <div class="card-header">
       <h2>
         <span class="icon-wrapper">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
             <line x1="3" y1="9" x2="21" y2="9"></line>
             <line x1="9" y1="21" x2="9" y2="9"></line>
@@ -13,14 +14,16 @@
       </h2>
       <div class="card-actions">
         <button class="action-btn" @click="refreshData" :class="{ 'rotating': isRefreshing }">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M23 4v6h-6"></path>
             <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
           </svg>
         </button>
         <div class="dropdown">
           <button class="action-btn" @click="toggleDropdown">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="1"></circle>
               <circle cx="12" cy="5" r="1"></circle>
               <circle cx="12" cy="19" r="1"></circle>
@@ -35,39 +38,29 @@
         </div>
       </div>
     </div>
-    
+
     <div class="time-selector">
-      <button 
-        v-for="period in timePeriods" 
-        :key="period.value" 
-        @click="setTimePeriod(period.value)"
-        :class="{ active: selectedPeriod === period.value }"
-        class="time-btn"
-      >
+      <button v-for="period in timePeriods" :key="period.value" @click="setTimePeriod(period.value)"
+        :class="{ active: selectedPeriod === period.value }" class="time-btn">
         {{ period.label }}
       </button>
     </div>
-    
+
     <div class="chart-container">
       <canvas ref="progressChart"></canvas>
       <div class="loading-overlay" v-if="isRefreshing">
         <div class="spinner"></div>
       </div>
     </div>
-    
+
     <div class="chart-legend">
-      <div 
-        class="legend-item"
-        v-for="(item, index) in legendItems" 
-        :key="index"
-        @click="toggleDataset(index)"
-        :class="{ 'legend-item-inactive': !activeDatasets[index] }"
-      >
-        <span class="color-dot" :style="{ backgroundColor: item.color }"></span> 
+      <div class="legend-item" v-for="(item, index) in legendItems" :key="index" @click="toggleDataset(index)"
+        :class="{ 'legend-item-inactive': !activeDatasets[index] }">
+        <span class="color-dot" :style="{ backgroundColor: item.color }"></span>
         {{ item.label }}
       </div>
     </div>
-    
+
     <div class="summary-row">
       <div class="summary-item" v-for="(stat, index) in summaryStats" :key="index">
         <div class="summary-value">{{ stat.value }}</div>
@@ -80,7 +73,7 @@
 <script>
 import { ref, onMounted, computed, watch } from "vue";
 import Chart from "chart.js/auto";
-import {fetchStatistics} from '@/Services/statiqueService'; // <- service importé
+import { fetchStatistics } from '@/Services/statiqueService'; // <- service importé
 
 export default {
   setup() {
@@ -141,17 +134,28 @@ export default {
     });
 
     const loadStatistics = async () => {
+      isRefreshing.value = true;
       try {
-        const data = await fetchStatistics(selectedPeriod.value); // <- appel au service
+        const response = await fetchStatistics(selectedPeriod.value);
         chartData.value = {
-          users: data.users,
-          chapters: data.chapters,
-          quizzes: data.tests, // backend retourne "tests"
-          quotes: data.quotes
+          users: response.users || 0,
+          chapters: response.chapters || 0,
+          quizzes: response.tests || 0, // backend returns "tests"
+          quotes: response.quotes || 0
         };
         initChart();
       } catch (error) {
         console.error("Erreur API:", error);
+        // Set default values if API fails
+        chartData.value = {
+          users: 0,
+          chapters: 0,
+          quizzes: 0,
+          quotes: 0
+        };
+        initChart();
+      } finally {
+        isRefreshing.value = false;
       }
     };
 
@@ -352,8 +356,13 @@ h2 {
 }
 
 @keyframes rotate {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .dropdown {
@@ -376,8 +385,15 @@ h2 {
 }
 
 @keyframes dropdown {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .dropdown-menu button {
@@ -457,7 +473,9 @@ h2 {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .chart-legend {
@@ -524,16 +542,16 @@ h2 {
   .analytics-card {
     padding: 18px;
   }
-  
+
   .chart-container {
     height: 250px;
   }
-  
+
   .summary-row {
     flex-wrap: wrap;
     gap: 10px;
   }
-  
+
   .summary-item {
     flex: 1 0 40%;
   }

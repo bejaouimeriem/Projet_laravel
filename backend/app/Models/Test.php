@@ -9,6 +9,7 @@ class Test extends Model
 {
     /** @use HasFactory<\Database\Factories\TestFactory> */
     use HasFactory;
+    protected $table = 'tests';
     protected $fillable = [
         'nomTest',
         'typeTest',

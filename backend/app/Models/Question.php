@@ -9,6 +9,7 @@ class Question extends Model
 {
     /** @use HasFactory<\Database\Factories\QuestionFactory> */
     use HasFactory;
+    protected $table = 'quotes';
     protected $fillable = [
         'contenu',
         'test_id',
