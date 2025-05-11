@@ -771,7 +771,7 @@ export default {
 
         const questionData = {
           contenu: this.currentQuestion.text,
-          testId: this.currentTestForQuestion.id
+          test_id: this.currentTestForQuestion.id
         };
 
         let savedQuestion;
@@ -785,7 +785,7 @@ export default {
           if (response.text.trim() !== '') {
             const responseData = {
               contenu: response.text,
-              questionId: savedQuestion.id
+              question_id: savedQuestion.id
             };
 
             if (response.id) {
