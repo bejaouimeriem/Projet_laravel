@@ -273,13 +273,11 @@ export default {
   },
   methods: {
     async handleFileUpload(event) {
-      const file = event.target.files[0];
-      if (file) {
-        this.currentEvent.image = file;
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-      }
-    },
+  const file = event.target.files[0];
+  if (file) {
+    this.currentEvent.image = file; // Stocker le nouveau fichier
+  }
+},
     getImageUrl(imagePath) {
       return `http://localhost:8000/storage/${imagePath}`;
     },
@@ -321,50 +319,61 @@ export default {
       });
   },
   saveEvent() {
-    this.loading = true;
-    const eventData = {
-      nom: this.currentEvent.nom,
-      description: this.currentEvent.description,
-      date: this.currentEvent.date,
-      lien: this.currentEvent.lien,
-      image: this.currentEvent.image,
-    };
-    if (this.editingEvent) {
-      eventService.updateEvent(this.editingEvent.id, eventData)
-        .then((response) => {
-          const index = this.events.findIndex(e => e.id === this.editingEvent.id);
-          if (index !== -1) {
-            this.events[index] = response.data;
-          }
-          this.cancelEdit();
-          this.showSuccessMessage("تم تحديث معلومات الحدث بنجاح");
-          this.fetchEvents();
-        })
-        .catch((error) => {
-          console.error("Erreur lors de la mise à jour :", error);
-          this.error = "فشل في تحديث معلومات الحدث";
-        })
-        .finally(() => {
-          this.loading = false;
-        });
-    } else {
-      eventService.createEvent(eventData)
-        .then((response) => {
-          this.events.unshift(response.data);
-          this.cancelEdit();
-          this.showSuccessMessage("تم إضافة الحدث بنجاح");
-          this.currentPage = 1;
-          this.fetchEvents();
-        })
-        .catch((error) => {
-          console.error("Erreur lors de la création :", error);
-          this.error = "فشل في إضافة الحدث";
-        })
-        .finally(() => {
-          this.loading = false;
-        });
-    }
-  },
+  this.loading = true;
+
+  // Créer un objet FormData pour gérer les fichiers
+  const formData = new FormData();
+  formData.append("nom", this.currentEvent.nom);
+  formData.append("description", this.currentEvent.description);
+  formData.append("date", this.currentEvent.date);
+  formData.append("lien", this.currentEvent.lien || "");
+
+  // Ajouter l'image uniquement si un nouveau fichier est sélectionné
+  if (this.currentEvent.image instanceof File) {
+    formData.append("image", this.currentEvent.image);
+  } else if (this.editingEvent) {
+    // Conserver l'image actuelle si aucune nouvelle image n'est sélectionnée
+    formData.append("image", this.editingEvent.image);
+  }
+
+  if (this.editingEvent) {
+    // Mise à jour de l'événement
+    eventService.updateEvent(this.editingEvent.id, formData)
+      .then((response) => {
+        const index = this.events.findIndex(e => e.id === this.editingEvent.id);
+        if (index !== -1) {
+          this.events[index] = response.data;
+        }
+        this.cancelEdit();
+        this.showSuccessMessage("تم تحديث معلومات الحدث بنجاح");
+        this.fetchEvents();
+      })
+      .catch((error) => {
+        console.error("Erreur lors de la mise à jour :", error);
+        this.error = "فشل في تحديث معلومات الحدث";
+      })
+      .finally(() => {
+        this.loading = false;
+      });
+  } else {
+    // Création d'un nouvel événement
+    eventService.createEvent(formData)
+      .then((response) => {
+        this.events.unshift(response.data);
+        this.cancelEdit();
+        this.showSuccessMessage("تم إضافة الحدث بنجاح");
+        this.currentPage = 1;
+        this.fetchEvents();
+      })
+      .catch((error) => {
+        console.error("Erreur lors de la création :", error);
+        this.error = "فشل في إضافة الحدث";
+      })
+      .finally(() => {
+        this.loading = false;
+      });
+  }
+},
   showSuccessMessage(message) {
       this.successMessage = message;
       // Disparaît après 3 secondes (3000 millisecondes)
@@ -373,10 +382,20 @@ export default {
       }, 3000);
     },
   editEvent(event) {
-    this.editingEvent = event;
-    this.currentEvent = { ...event };
-    this.showAddForm = true;
-  },
+  this.editingEvent = event;
+  // Formater la date pour datetime-local
+  const formattedDate = event.date
+    ? new Date(event.date).toISOString().slice(0, 16)
+    : "";
+  this.currentEvent = {
+    nom: event.nom,
+    description: event.description,
+    date: formattedDate,
+    lien: event.lien,
+    image: event.image, // Conserver l'image actuelle
+  };
+  this.showAddForm = true;
+},
   cancelEdit() {
     this.showAddForm = false;
     this.editingEvent = null;

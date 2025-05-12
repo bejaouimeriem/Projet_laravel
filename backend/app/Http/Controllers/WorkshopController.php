@@ -6,30 +6,25 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Workshop;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
 class WorkshopController extends Controller
 {
     public function create(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'nom' => 'required|string',
             'description' => 'required|string',
             'date' => 'required|date',
-            'lien' => 'required|string',
-            'image' => 'nullable|image|max:2048',
+            'lien' => 'nullable|url',
+            'image' => 'nullable|image|max:2048', // Max 2MB
         ]);
 
-        $event = Workshop::create([
-            'nom' => $request->nom,
-            'description' => $request->description,
-            'date' => $request->date,
-            'lien' => $request->lien,
-        ]);
-        $image = null;
         if ($request->hasFile('image')) {
-            $image = $request->file('image')->store('images', 'public');
+            $imagePath = $request->file('image')->store('events', 'public');
+            $validated['image'] = $imagePath;
         }
-        $event->image = $image;
-        $event->save();
+
+        $event = Workshop::create($validated);
         return response()->json($event, 201);
     }
 
@@ -46,31 +41,30 @@ class WorkshopController extends Controller
 
     public function update(Request $request, $id)
     {
-        $request->validate([
+        $event = Workshop::findOrFail($id);
+
+        $validated = $request->validate([
             'nom' => 'required|string',
             'description' => 'required|string',
             'date' => 'required|date',
-            'lien' => 'required|string',
-            'image' => 'nullable|image|max:2048',
+            'lien' => 'nullable|url',
+            'image' => 'nullable', // Peut être un fichier ou un chemin
         ]);
 
-        $event = Workshop::find($id);
-        if ($event) {
-            $event->nom = $request->nom;
-            $event->description = $request->description;
-            $event->date = $request->date;
-            $event->lien = $request->lien;
-
-            if ($request->hasFile('image')) {
-                $image = $request->file('image')->store('images', 'public');
-                $event->image = $image;
+        if ($request->hasFile('image')) {
+            // Supprimer l'ancienne image si elle existe
+            if ($event->image) {
+                Storage::disk('public')->delete($event->image);
             }
-
-            $event->save();
-            return response()->json($event, 200);
+            $imagePath = $request->file('image')->store('events', 'public');
+            $validated['image'] = $imagePath;
         } else {
-            return response()->json(['message' => 'Event not found'], 404);
+            // Conserver l'image actuelle si aucune nouvelle image n'est envoyée
+            $validated['image'] = $event->image;
         }
+
+        $event->update($validated);
+        return response()->json($event);
     }
 
     public function delete($id)
