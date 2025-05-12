@@ -11,6 +11,7 @@ use App\Http\Controllers\QuoteController;
 use App\Http\Controllers\ChapitreController;
 use App\Http\Controllers\SousChapitreController;
 use App\Http\Controllers\UserSousChapitreProgressController;
+use App\Http\Controllers\StatisticsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -118,3 +119,5 @@ Route::group(['prefix'=>'/UserSousChapitreProgress'],function(){
     Route::post('/getLastReadPage',[UserSousChapitreProgressController::class,'getLastReadPage']);
     Route::put('/setLastPageRead',[UserSousChapitreProgressController::class,'setLastPageRead']);
 }); 
+Route::get('/statistics', [StatisticsController::class, 'getStatistics']);
+

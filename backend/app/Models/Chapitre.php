@@ -9,7 +9,8 @@ class Chapitre extends Model
 {
     /** @use HasFactory<\Database\Factories\ChapitreFactory> */
     use HasFactory;
-    protected $fillable = [
+    protected $table = 'chapitres';
+        protected $fillable = [
         'title',
         'description',
         'image',
