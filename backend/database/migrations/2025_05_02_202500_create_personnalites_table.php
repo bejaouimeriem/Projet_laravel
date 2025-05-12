@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::create('personnalites', function (Blueprint $table) {
             $table->id();
             $table->string('nom');
-            $table->string('nomEnglish');
+            $table->string('nomEnglish')->nullable();
             $table->text('contenu');
-            $table->string('icon');
-            $table->string('image');
+            $table->string('icon')->nullable();
+            $table->string('image')->nullable();
             $table->timestamps();
         });
     }

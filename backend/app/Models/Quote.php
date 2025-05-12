@@ -9,6 +9,7 @@ class Quote extends Model
 {
     /** @use HasFactory<\Database\Factories\QuoteFactory> */
     use HasFactory;
+    protected $table = 'quotes';
     protected $fillable = [
         'nomAuteur',
         'contenu',

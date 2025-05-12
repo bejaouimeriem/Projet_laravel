@@ -12,6 +12,7 @@ use App\Http\Controllers\QuoteController;
 use App\Http\Controllers\ChapitreController;
 use App\Http\Controllers\SousChapitreController;
 use App\Http\Controllers\UserSousChapitreProgressController;
+use App\Http\Controllers\PersonnaliteController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -120,3 +121,11 @@ Route::group(['prefix'=>'/UserSousChapitreProgress'],function(){
     Route::post('/getLastReadPage',[UserSousChapitreProgressController::class,'getLastReadPage']);
     Route::put('/setLastPageRead',[UserSousChapitreProgressController::class,'setLastPageRead']);
 }); 
+
+// Personnalite Routes
+Route::post('/Personnalite/create', [PersonnaliteController::class, 'create']);
+Route::delete('/Personnalite/delete/{id}', [PersonnaliteController::class, 'delete']);
+Route::get('/Personnalite/get/{id}', [PersonnaliteController::class, 'get']);
+Route::get('/Personnalite/getAll', [PersonnaliteController::class, 'getAll']);
+Route::put('/Personnalite/update/{id}', [PersonnaliteController::class, 'update']);
+Route::delete('/Personnalite/deleteAll', [PersonnaliteController::class, 'deleteAll']);

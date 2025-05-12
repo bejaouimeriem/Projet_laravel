@@ -16,6 +16,9 @@ class QuestionController extends Controller
      */
     public function create(Request $request)
     {
+        try{
+
+        
         $validated = $request->validate([
             'contenu' => 'required|string',
             'test_id' => 'required|exists:tests,id',
@@ -27,6 +30,12 @@ class QuestionController extends Controller
         ]);
 
         return response()->json($question, 201);
+        }catch(\Exception $e){
+           return response()->json([
+            'message' => 'حدث خطأ أثناء إنشاء الشخصية',
+            'error' => $e->getMessage()
+        ], 500);
+        }
     }
 
     /**

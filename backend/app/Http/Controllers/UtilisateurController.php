@@ -34,6 +34,9 @@ class UtilisateurController extends Controller
 
     public function register(Request $request)
     {
+        try{
+
+        
         // Utiliser validator au lieu de validate directement
         $validator = Validator::make($request->all(), [
             'nom' => 'required|string|max:255',
@@ -70,6 +73,12 @@ class UtilisateurController extends Controller
         
 
         return response()->json($utilisateur, 200);
+        }catch(\Exception $e){
+           return response()->json([
+            'message' => 'حدث خطأ أثناء التسجيل',
+            'error' => $e->getMessage()
+        ], 500);
+        }
     }
 
     // GET /api/Utilisateur/getAll

@@ -25,9 +25,10 @@ export default {
     async setPersonnalite(type, id) {
         try {
             const store = useUserStore();
+            console.log('Setting personnalite with type:', type, 'and id:', id);
             await Axios.post("Utilisateur/setPersonnalite", {
-                type: type,
-                id: id
+                user_id: id,
+                personnalite_id: type
             });
             store.setPersonnalite(type);
         } catch (err) {
