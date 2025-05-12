@@ -10,7 +10,26 @@ class WorkshopController extends Controller
 {
     public function create(Request $request)
     {
-        $event = Workshop::create($request->all());
+        $request->validate([
+            'nom' => 'required|string',
+            'description' => 'required|string',
+            'date' => 'required|date',
+            'lien' => 'required|string',
+            'image' => 'nullable|image|max:2048',
+        ]);
+
+        $event = Workshop::create([
+            'nom' => $request->nom,
+            'description' => $request->description,
+            'date' => $request->date,
+            'lien' => $request->lien,
+        ]);
+        $image = null;
+        if ($request->hasFile('image')) {
+            $image = $request->file('image')->store('images', 'public');
+        }
+        $event->image = $image;
+        $event->save();
         return response()->json($event, 201);
     }
 
@@ -27,9 +46,31 @@ class WorkshopController extends Controller
 
     public function update(Request $request, $id)
     {
-        $event = Workshop::findOrFail($id);
-        $event->update($request->all());
-        return response()->json($event);
+        $request->validate([
+            'nom' => 'required|string',
+            'description' => 'required|string',
+            'date' => 'required|date',
+            'lien' => 'required|string',
+            'image' => 'nullable|image|max:2048',
+        ]);
+
+        $event = Workshop::find($id);
+        if ($event) {
+            $event->nom = $request->nom;
+            $event->description = $request->description;
+            $event->date = $request->date;
+            $event->lien = $request->lien;
+
+            if ($request->hasFile('image')) {
+                $image = $request->file('image')->store('images', 'public');
+                $event->image = $image;
+            }
+
+            $event->save();
+            return response()->json($event, 200);
+        } else {
+            return response()->json(['message' => 'Event not found'], 404);
+        }
     }
 
     public function delete($id)

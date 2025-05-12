@@ -81,7 +81,7 @@ Route::prefix('WorkshopEvents')->group(function () {
     Route::post('/create', [WorkshopController::class, 'create']);
     Route::get('/get/{id}', [WorkshopController::class, 'get']);
     Route::get('/getAll', [WorkshopController::class, 'getAll']);
-    Route::put('/update/{id}', [WorkshopController::class, 'update']);
+    Route::post('/update/{id}', [WorkshopController::class, 'update']);
     Route::delete('/delete/{id}', [WorkshopController::class, 'delete']);
     Route::delete('/deleteAll', [WorkshopController::class, 'deleteAll']);
     Route::delete('/deleteExpired', [WorkshopController::class, 'deleteExpired']);

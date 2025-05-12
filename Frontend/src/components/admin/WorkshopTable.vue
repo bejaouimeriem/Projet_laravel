@@ -27,11 +27,11 @@
       <div class="Events-list" v-if="paginatedEvents.length > 0">
         <div
           v-for="(event, index) in paginatedEvents"
-          :key="event.id"
+          :key="event?.id || index"
           class="event-card"
         >
           <div class="event-image">
-            <img :src="'http://localhost:9090' + event.image" alt="صورة الحدث" width="100%" height="100%"/>
+            <img :src="getImageUrl(event.image)" alt="صورة الحدث" width="100%" height="100%"/>
           </div>
           <div class="event-content">
             <div class="event-number">{{ startIndex + index + 1 }}</div>
@@ -161,8 +161,7 @@
             </div>
             <div class="form-group">
             <label for="eventImage">الصورة</label>
-            <input type="file" id="eventImage" @change="uploadImage" accept="image/*" />
-            <p v-if="currentEvent.image">{{ currentEvent.image }}</p>
+            <input type="file" id="eventImage" @change="handleFileUpload" accept="image/*" />
             </div>
 
             <div class="modal-actions">
@@ -197,7 +196,6 @@
 
 <script>
 import eventService from "@/Services/eventService";
-import axios from "axios";
 
 export default {
   data() {
@@ -237,9 +235,10 @@ export default {
       return Math.ceil(this.filteredEvents.length / this.itemsPerPage);
     },
     paginatedEvents() {
-      const start = (this.currentPage - 1) * this.itemsPerPage;
-      const end = start + this.itemsPerPage;
-      return this.filteredEvents.slice(start, end);
+    if (!this.events.length) return [];
+    const start = (this.currentPage - 1) * this.itemsPerPage;
+    const end = Math.min(start + this.itemsPerPage, this.events.length);
+    return this.events.slice(start, end).filter(e => e); // filtre tout null/undefined
     },
     startIndex() {
       return (this.currentPage - 1) * this.itemsPerPage;
@@ -273,6 +272,17 @@ export default {
     this.fetchEvents();
   },
   methods: {
+    async handleFileUpload(event) {
+      const file = event.target.files[0];
+      if (file) {
+        this.currentEvent.image = file;
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+      }
+    },
+    getImageUrl(imagePath) {
+      return `http://localhost:8000/storage/${imagePath}`;
+    },
   fetchEvents() {
     this.loading = true;
     eventService.getAllEvents()
@@ -312,8 +322,15 @@ export default {
   },
   saveEvent() {
     this.loading = true;
+    const eventData = {
+      nom: this.currentEvent.nom,
+      description: this.currentEvent.description,
+      date: this.currentEvent.date,
+      lien: this.currentEvent.lien,
+      image: this.currentEvent.image,
+    };
     if (this.editingEvent) {
-      eventService.updateEvent(this.editingEvent.id, this.currentEvent)
+      eventService.updateEvent(this.editingEvent.id, eventData)
         .then((response) => {
           const index = this.events.findIndex(e => e.id === this.editingEvent.id);
           if (index !== -1) {
@@ -321,6 +338,7 @@ export default {
           }
           this.cancelEdit();
           this.showSuccessMessage("تم تحديث معلومات الحدث بنجاح");
+          this.fetchEvents();
         })
         .catch((error) => {
           console.error("Erreur lors de la mise à jour :", error);
@@ -330,12 +348,13 @@ export default {
           this.loading = false;
         });
     } else {
-      eventService.createEvent(this.currentEvent)
+      eventService.createEvent(eventData)
         .then((response) => {
           this.events.unshift(response.data);
           this.cancelEdit();
           this.showSuccessMessage("تم إضافة الحدث بنجاح");
           this.currentPage = 1;
+          this.fetchEvents();
         })
         .catch((error) => {
           console.error("Erreur lors de la création :", error);
@@ -373,19 +392,6 @@ export default {
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
     return new Date(dateString).toLocaleDateString('ar-TN', options);
   },
-  async uploadImage(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-      const formData = new FormData();
-      formData.append("file", file);
-
-      try {
-        const res = await axios.post("http://localhost:9090/api/upload", formData);
-        this.currentEvent.image = res.data; // exemple: "/files/images/uuid_nom.jpg"
-      } catch (err) {
-        console.error("Erreur upload image", err);
-      }
-    },
 }
 };
 </script>

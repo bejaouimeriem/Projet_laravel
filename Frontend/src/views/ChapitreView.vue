@@ -171,7 +171,6 @@ export default {
   },
   methods: {
     getImageUrl(imagePath) {
-      console.log("Image path:", imagePath);
       return `http://localhost:8000/storage/${imagePath}`;
     },
     handleCardClick(chapitre) {
