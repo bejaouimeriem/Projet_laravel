@@ -1,5 +1,7 @@
 import axios from "axios";
 
+const API_URL = 'http://localhost:8000/api/WorkshopEvents';
+
 export default {
   getAllEvents() {
     return axios.get("WorkshopEvents/getAll");
@@ -10,11 +12,18 @@ export default {
   },
 
   createEvent(eventData) {
-    return axios.post("WorkshopEvents/create", eventData);
+    return axios.post(`${API_URL}/create`, eventData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
   },
-
   updateEvent(id, eventData) {
-    return axios.put(`WorkshopEvents/update/${id}`, eventData);
+    return axios.post(`${API_URL}/update/${id}`, eventData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
   },
 
   deleteEvent(id) {

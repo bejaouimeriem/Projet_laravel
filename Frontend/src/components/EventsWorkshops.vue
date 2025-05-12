@@ -8,7 +8,7 @@
           <div class="event-content-wrapper">
             <div class="event-image mt-2">
               <img
-                :src="'http://localhost:9090' + event.image"
+                :src="getImageUrl(event.image)"
                 alt="Event image"
                 class="rounded-lg"
               />
@@ -55,6 +55,9 @@ export default {
     this.loadEvents();
   },
   methods: {
+    getImageUrl(imagePath) {
+      return `http://localhost:8000/storage/${imagePath}`;
+    },
     async loadEvents() {
       try {
         // Supprimer les événements expirés d'abord

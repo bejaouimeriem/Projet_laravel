@@ -6,11 +6,25 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Workshop;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
 class WorkshopController extends Controller
 {
     public function create(Request $request)
     {
-        $event = Workshop::create($request->all());
+        $validated = $request->validate([
+            'nom' => 'required|string',
+            'description' => 'required|string',
+            'date' => 'required|date',
+            'lien' => 'nullable|url',
+            'image' => 'nullable|image|max:2048', // Max 2MB
+        ]);
+
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('events', 'public');
+            $validated['image'] = $imagePath;
+        }
+
+        $event = Workshop::create($validated);
         return response()->json($event, 201);
     }
 
@@ -28,7 +42,28 @@ class WorkshopController extends Controller
     public function update(Request $request, $id)
     {
         $event = Workshop::findOrFail($id);
-        $event->update($request->all());
+
+        $validated = $request->validate([
+            'nom' => 'required|string',
+            'description' => 'required|string',
+            'date' => 'required|date',
+            'lien' => 'nullable|url',
+            'image' => 'nullable', // Peut être un fichier ou un chemin
+        ]);
+
+        if ($request->hasFile('image')) {
+            // Supprimer l'ancienne image si elle existe
+            if ($event->image) {
+                Storage::disk('public')->delete($event->image);
+            }
+            $imagePath = $request->file('image')->store('events', 'public');
+            $validated['image'] = $imagePath;
+        } else {
+            // Conserver l'image actuelle si aucune nouvelle image n'est envoyée
+            $validated['image'] = $event->image;
+        }
+
+        $event->update($validated);
         return response()->json($event);
     }
 

@@ -13,6 +13,7 @@ use App\Http\Controllers\ChapitreController;
 use App\Http\Controllers\SousChapitreController;
 use App\Http\Controllers\UserSousChapitreProgressController;
 use App\Http\Controllers\PersonnaliteController;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -85,7 +86,7 @@ Route::prefix('WorkshopEvents')->group(function () {
     Route::post('/create', [WorkshopController::class, 'create']);
     Route::get('/get/{id}', [WorkshopController::class, 'get']);
     Route::get('/getAll', [WorkshopController::class, 'getAll']);
-    Route::put('/update/{id}', [WorkshopController::class, 'update']);
+    Route::post('/update/{id}', [WorkshopController::class, 'update']);
     Route::delete('/delete/{id}', [WorkshopController::class, 'delete']);
     Route::delete('/deleteAll', [WorkshopController::class, 'deleteAll']);
     Route::delete('/deleteExpired', [WorkshopController::class, 'deleteExpired']);
@@ -106,6 +107,7 @@ Route::group(['prefix'=>'/chapitres'],function(){
     Route::delete('/delete/{id}',[ChapitreController::class,'deleteChapitre']);
     Route::post('/create',[ChapitreController::class,'addChapitre']);
     Route::post('/update/{id}',[ChapitreController::class,'updateChapitre']);
+    Route::post('/getProgress',[ChapitreController::class,'getProgress']);
 }); 
 //SousChapitres Routes
 Route::group(['prefix'=>'/SousChapitres'],function(){

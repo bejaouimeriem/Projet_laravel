@@ -4,14 +4,15 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Chapitre;
+use App\Models\UserSousChapitresProgress;
 
 class ChapitreController extends Controller
 {
     public function getChapitresByThematic($id)
     {
         $chapitres = Chapitre::where('thematic_id', $id)
-        ->with('souschapitres')
-        ->get();
+            ->with('souschapitres')
+            ->get();
         return response()->json($chapitres);
     }
     public function deleteChapitre($id)
@@ -48,7 +49,7 @@ class ChapitreController extends Controller
 
         return response()->json($chapitre, 201);
     }
-    public function updateChapitre($id,Request $request)
+    public function updateChapitre($id, Request $request)
     {
         $request->validate([
             'title' => 'required|string',
@@ -71,5 +72,34 @@ class ChapitreController extends Controller
         } else {
             return response()->json(['message' => 'لم يتم العثور على الفصل'], 404);
         }
+    }
+
+    public function getProgress(Request $request)
+    {
+        $userId = $request->input('userId');
+        $chapitreId = $request->input('chapitreId');
+
+        $chapitre = Chapitre::with('souschapitres')->findOrFail($chapitreId);
+        $sousChapitres = $chapitre->souschapitres;
+
+        if ($sousChapitres->isEmpty()) {
+            $chapitre->pourcentage = 0;
+            $chapitre->save();
+            return response()->json(0);
+        }
+
+        $sousChapitreIds = $sousChapitres->pluck('id')->toArray();
+
+        $progressList = UserSousChapitresProgress::where('user_id', $userId)
+            ->whereIn('sous_chapitre_id', $sousChapitreIds)
+            ->get();
+
+        $sum = $progressList->sum('pourcentage');
+        $average = floor($sum / count($sousChapitres));
+
+        $chapitre->pourcentage = $average;
+        $chapitre->save();
+
+        return response()->json($average);
     }
 }

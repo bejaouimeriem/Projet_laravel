@@ -27,11 +27,11 @@
       <div class="Events-list" v-if="paginatedEvents.length > 0">
         <div
           v-for="(event, index) in paginatedEvents"
-          :key="event.id"
+          :key="event?.id || index"
           class="event-card"
         >
           <div class="event-image">
-            <img :src="'http://localhost:9090' + event.image" alt="صورة الحدث" width="100%" height="100%"/>
+            <img :src="getImageUrl(event.image)" alt="صورة الحدث" width="100%" height="100%"/>
           </div>
           <div class="event-content">
             <div class="event-number">{{ startIndex + index + 1 }}</div>
@@ -161,8 +161,7 @@
             </div>
             <div class="form-group">
             <label for="eventImage">الصورة</label>
-            <input type="file" id="eventImage" @change="uploadImage" accept="image/*" />
-            <p v-if="currentEvent.image">{{ currentEvent.image }}</p>
+            <input type="file" id="eventImage" @change="handleFileUpload" accept="image/*" />
             </div>
 
             <div class="modal-actions">
@@ -197,7 +196,6 @@
 
 <script>
 import eventService from "@/Services/eventService";
-import axios from "axios";
 
 export default {
   data() {
@@ -237,9 +235,10 @@ export default {
       return Math.ceil(this.filteredEvents.length / this.itemsPerPage);
     },
     paginatedEvents() {
-      const start = (this.currentPage - 1) * this.itemsPerPage;
-      const end = start + this.itemsPerPage;
-      return this.filteredEvents.slice(start, end);
+    if (!this.events.length) return [];
+    const start = (this.currentPage - 1) * this.itemsPerPage;
+    const end = Math.min(start + this.itemsPerPage, this.events.length);
+    return this.events.slice(start, end).filter(e => e); // filtre tout null/undefined
     },
     startIndex() {
       return (this.currentPage - 1) * this.itemsPerPage;
@@ -273,6 +272,15 @@ export default {
     this.fetchEvents();
   },
   methods: {
+    async handleFileUpload(event) {
+  const file = event.target.files[0];
+  if (file) {
+    this.currentEvent.image = file; // Stocker le nouveau fichier
+  }
+},
+    getImageUrl(imagePath) {
+      return `http://localhost:8000/storage/${imagePath}`;
+    },
   fetchEvents() {
     this.loading = true;
     eventService.getAllEvents()
@@ -311,41 +319,61 @@ export default {
       });
   },
   saveEvent() {
-    this.loading = true;
-    if (this.editingEvent) {
-      eventService.updateEvent(this.editingEvent.id, this.currentEvent)
-        .then((response) => {
-          const index = this.events.findIndex(e => e.id === this.editingEvent.id);
-          if (index !== -1) {
-            this.events[index] = response.data;
-          }
-          this.cancelEdit();
-          this.showSuccessMessage("تم تحديث معلومات الحدث بنجاح");
-        })
-        .catch((error) => {
-          console.error("Erreur lors de la mise à jour :", error);
-          this.error = "فشل في تحديث معلومات الحدث";
-        })
-        .finally(() => {
-          this.loading = false;
-        });
-    } else {
-      eventService.createEvent(this.currentEvent)
-        .then((response) => {
-          this.events.unshift(response.data);
-          this.cancelEdit();
-          this.showSuccessMessage("تم إضافة الحدث بنجاح");
-          this.currentPage = 1;
-        })
-        .catch((error) => {
-          console.error("Erreur lors de la création :", error);
-          this.error = "فشل في إضافة الحدث";
-        })
-        .finally(() => {
-          this.loading = false;
-        });
-    }
-  },
+  this.loading = true;
+
+  // Créer un objet FormData pour gérer les fichiers
+  const formData = new FormData();
+  formData.append("nom", this.currentEvent.nom);
+  formData.append("description", this.currentEvent.description);
+  formData.append("date", this.currentEvent.date);
+  formData.append("lien", this.currentEvent.lien || "");
+
+  // Ajouter l'image uniquement si un nouveau fichier est sélectionné
+  if (this.currentEvent.image instanceof File) {
+    formData.append("image", this.currentEvent.image);
+  } else if (this.editingEvent) {
+    // Conserver l'image actuelle si aucune nouvelle image n'est sélectionnée
+    formData.append("image", this.editingEvent.image);
+  }
+
+  if (this.editingEvent) {
+    // Mise à jour de l'événement
+    eventService.updateEvent(this.editingEvent.id, formData)
+      .then((response) => {
+        const index = this.events.findIndex(e => e.id === this.editingEvent.id);
+        if (index !== -1) {
+          this.events[index] = response.data;
+        }
+        this.cancelEdit();
+        this.showSuccessMessage("تم تحديث معلومات الحدث بنجاح");
+        this.fetchEvents();
+      })
+      .catch((error) => {
+        console.error("Erreur lors de la mise à jour :", error);
+        this.error = "فشل في تحديث معلومات الحدث";
+      })
+      .finally(() => {
+        this.loading = false;
+      });
+  } else {
+    // Création d'un nouvel événement
+    eventService.createEvent(formData)
+      .then((response) => {
+        this.events.unshift(response.data);
+        this.cancelEdit();
+        this.showSuccessMessage("تم إضافة الحدث بنجاح");
+        this.currentPage = 1;
+        this.fetchEvents();
+      })
+      .catch((error) => {
+        console.error("Erreur lors de la création :", error);
+        this.error = "فشل في إضافة الحدث";
+      })
+      .finally(() => {
+        this.loading = false;
+      });
+  }
+},
   showSuccessMessage(message) {
       this.successMessage = message;
       // Disparaît après 3 secondes (3000 millisecondes)
@@ -354,10 +382,20 @@ export default {
       }, 3000);
     },
   editEvent(event) {
-    this.editingEvent = event;
-    this.currentEvent = { ...event };
-    this.showAddForm = true;
-  },
+  this.editingEvent = event;
+  // Formater la date pour datetime-local
+  const formattedDate = event.date
+    ? new Date(event.date).toISOString().slice(0, 16)
+    : "";
+  this.currentEvent = {
+    nom: event.nom,
+    description: event.description,
+    date: formattedDate,
+    lien: event.lien,
+    image: event.image, // Conserver l'image actuelle
+  };
+  this.showAddForm = true;
+},
   cancelEdit() {
     this.showAddForm = false;
     this.editingEvent = null;
@@ -373,19 +411,6 @@ export default {
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
     return new Date(dateString).toLocaleDateString('ar-TN', options);
   },
-  async uploadImage(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-      const formData = new FormData();
-      formData.append("file", file);
-
-      try {
-        const res = await axios.post("http://localhost:9090/api/upload", formData);
-        this.currentEvent.image = res.data; // exemple: "/files/images/uuid_nom.jpg"
-      } catch (err) {
-        console.error("Erreur upload image", err);
-      }
-    },
 }
 };
 </script>
