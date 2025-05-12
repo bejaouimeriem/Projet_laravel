@@ -17,7 +17,7 @@
         <!-- Progress Navigation -->
         <v-sheet class="progress-tabs mb-6 mx-auto rounded-pill" max-width="700px">
           <v-row no-gutters>
-            <v-col v-for="(tab, index) in 5" :key="index">
+            <v-col v-for="(tab, index) in questions.length" :key="index">
               <v-sheet class="pa-2 text-center rounded-pill mx-1"
                 :color="currentTab === index ? '#1e2a38' : 'lightblue'" height="40"
                 :elevation="currentTab === index ? 2 : 0">
@@ -28,7 +28,7 @@
         </v-sheet>
 
         <!-- Question Card -->
-        <v-card v-for="(question, index1) in questions" :key="index1" class="question-card mx-auto mb-8"
+        <v-card v-for="(question, index1) in questions" :key="question.id" class="question-card mx-auto mb-8"
           max-width="700px" elevation="3" rounded="xl" v-show="currentTab === index1">
 
           <v-card-title class="text-center py-4 text-white question-header" dir="rtl">
@@ -36,7 +36,7 @@
           </v-card-title>
 
           <v-card-text class="answer-options pt-4">
-            <v-sheet v-for="(reponse, index2) in question.reponses" :key="index2"
+            <v-sheet v-for="(reponse, index2) in question.reponses" :key="reponse.id"
               class="answer-option mb-3 pa-3 d-flex align-center rounded-lg" elevation="1" @click="selectOption(index2)"
               :class="{ 'selected-option': selectedOption === index2 }">
               <span class="option-text" style="padding-right:15px">{{ reponse.contenu }}</span>
@@ -50,7 +50,7 @@
           <v-btn fab size="large" color="grey-darken-3" class="next-button" :disabled="selectedOption === null"
             @click="nextQuestion">
             <v-icon>
-              {{ currentTab === 4 ? 'mdi-check' : 'mdi-arrow-right' }}
+              {{ currentTab === questions.length - 1 ? 'mdi-check' : 'mdi-arrow-right' }}
             </v-icon>
           </v-btn>
         </div>
@@ -75,8 +75,10 @@
 
 <script>
 import QuestionService from '@/Services/QuestionService.js';
+import ResponseService from '@/Services/ResponseService';
 import { useUserStore } from '@/store/User/userStore';
 import Axios from 'axios';
+
 export default {
   data() {
     return {
@@ -95,6 +97,7 @@ export default {
       currentTab: 0,
       selectedOption: null,
       optionLetters: ['أ', 'ب', 'ج', 'د'],
+      testId: null
     }
   },
   created() {
@@ -116,7 +119,7 @@ export default {
       } else if (this.selectedOption === 3) {
         this.sumD++;
       }
-      if (this.currentTab < 4) {
+      if (this.currentTab < this.questions.length - 1) {
         this.currentTab++;
         this.selectedOption = null;
       } else {
@@ -133,25 +136,86 @@ export default {
         try {
           const store = useUserStore();
           const id = store.user.id;
-          console.log("Type",this.type," id:",id);
-          await QuestionService.setPersonnalite(this.type,id);
+          console.log("Type", this.type, " id:", id);
+          await QuestionService.setPersonnalite(this.type, id);
+          this.showSuccessSnackbar("تم تحديث نوع الشخصية بنجاح");
         } catch (err) {
           console.error(err);
-          this.showSnackBar = true;
-          this.text = "حدث خطأ أثناء تحديث نوع الشخصية";
+          this.showErrorSnackbar("حدث خطأ أثناء تحديث نوع الشخصية");
         }
         this.$router.push({ name: 'Entrance' });
       }
     },
     async getTest() {
       try {
-        const res = await Axios.get("http://localhost:9090/api/Test/getTestUtilisable");
-        this.questions = await QuestionService.getAllQuestions({id:res.data.id,utilisable:res.data.utilisable});
+        this.isLoading = true;
+        // Get active test
+        const res = await Axios.get("http://localhost:8000/api/Test/getTestUtilisable");
+        console.log("Fetched test:", res.data);
+        this.testId = res.data.id;
+        
+        // Get all questions for this test
+        const questionsData = await QuestionService.getAllQuestions(res.data);
+        console.log("Fetched questions:", questionsData);
+        
+        // Create empty reponses array for each question
+        this.questions = questionsData.map(q => ({...q, reponses: []}));
+        
+        // Fetch responses for each question
+        await this.fetchAllResponses();
+        
+        // Filter out questions with no responses
+        this.questions = this.questions.filter(question => question.reponses.length > 0);
+        console.log("Final questions with responses:", this.questions);
+        
+        if (this.questions.length === 0) {
+          this.showErrorSnackbar("لا توجد أسئلة أو إجابات لهذا الاختبار");
+        }
       } catch (err) {
-        this.showSnackBar = false;
-        this.text = "حدث خطأ أثناء تحميل الأسئلة";
-        console.error(err);
+        console.error("Error fetching test data:", err);
+        this.showErrorSnackbar("حدث خطأ أثناء تحميل الاختبار");
+      } finally {
+        this.isLoading = false;
       }
+    },
+    
+    async fetchAllResponses() {
+      try {
+        // Process each question sequentially
+        for (const question of this.questions) {
+          await this.fetchResponsesForQuestion(question);
+        }
+      } catch (err) {
+        console.error("Error fetching responses:", err);
+        throw err;
+      }
+    },
+    
+    async fetchResponsesForQuestion(question) {
+      try {
+        const responses = await ResponseService.getResponsesByQuestionId(question.id);
+        console.log(`Fetched ${responses.length} responses for question ${question.id}:`, responses);
+        // Update the question with its responses
+        question.reponses = responses;
+      } catch (err) {
+        console.error(`Error fetching responses for question ${question.id}:`, err);
+        // Keep empty responses array if there was an error
+        question.reponses = [];
+      }
+    },
+    
+    showSuccessSnackbar(message) {
+      this.text = message;
+      this.snackbarColor = 'success';
+      this.snackbarIcon = 'mdi-check-circle';
+      this.showSnackBar = true;
+    },
+    
+    showErrorSnackbar(message) {
+      this.text = message;
+      this.snackbarColor = 'error';
+      this.snackbarIcon = 'mdi-alert-circle';
+      this.showSnackBar = true;
     }
   },
   mounted() {

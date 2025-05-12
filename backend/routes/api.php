@@ -6,12 +6,14 @@ use App\Http\Controllers\UtilisateurController;
 use App\Http\Controllers\TestController;
 use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\ReponseController;
+use App\Http\Controllers\StatisticsController;
 use App\Http\Controllers\WorkshopController;
 use App\Http\Controllers\QuoteController;
 use App\Http\Controllers\ChapitreController;
 use App\Http\Controllers\SousChapitreController;
 use App\Http\Controllers\UserSousChapitreProgressController;
-use App\Http\Controllers\StatisticsController;
+use App\Http\Controllers\PersonnaliteController;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -78,6 +80,8 @@ Route::prefix('Reponse')->group(function () {
     Route::delete('/deleteAll', [ReponseController::class, 'deleteAll']);
     Route::get('/getByQuestion/{questionId}', [ReponseController::class, 'getByQuestion']);
 });
+Route::get('/statistics', [StatisticsController::class, 'getStatistics']);
+
 Route::prefix('WorkshopEvents')->group(function () {
     Route::post('/create', [WorkshopController::class, 'create']);
     Route::get('/get/{id}', [WorkshopController::class, 'get']);
@@ -119,5 +123,11 @@ Route::group(['prefix'=>'/UserSousChapitreProgress'],function(){
     Route::post('/getLastReadPage',[UserSousChapitreProgressController::class,'getLastReadPage']);
     Route::put('/setLastPageRead',[UserSousChapitreProgressController::class,'setLastPageRead']);
 }); 
-Route::get('/statistics', [StatisticsController::class, 'getStatistics']);
 
+// Personnalite Routes
+Route::post('/Personnalite/create', [PersonnaliteController::class, 'create']);
+Route::delete('/Personnalite/delete/{id}', [PersonnaliteController::class, 'delete']);
+Route::get('/Personnalite/get/{id}', [PersonnaliteController::class, 'get']);
+Route::get('/Personnalite/getAll', [PersonnaliteController::class, 'getAll']);
+Route::put('/Personnalite/update/{id}', [PersonnaliteController::class, 'update']);
+Route::delete('/Personnalite/deleteAll', [PersonnaliteController::class, 'deleteAll']);
