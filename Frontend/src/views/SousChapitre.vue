@@ -88,7 +88,7 @@
           <a :href="getPDFUrl(selectedChapter.pdf)" target="_blank" download class="styled-download-link">
             <v-icon left>mdi-download</v-icon> تحميل الملف PDF
           </a>
-        
+
           <button class="view-btn" @click="showPdfViewer = true">
             <v-icon left>mdi-file-document-outline</v-icon> عرض الملف PDF
           </button>
@@ -169,13 +169,18 @@ export default {
     window.removeEventListener('resize', this.handleResize);
   },
   methods: {
-     getImageUrl(imagePath) {
+    getImageUrl(imagePath) {
       return `http://localhost:8000/storage/${imagePath}`;
     },
+    // getPDFUrl(pdfPath) {
+    //   console.log("PDF URL:", pdfPath);
+    //   return `http://localhost:8000/storage/${pdfPath}`;
+    // },
     getPDFUrl(pdfPath) {
-      console.log("PDF URL:", pdfPath);
-      return `http://localhost:8000/storage/${pdfPath}`;
+      console.log("PDF URL:", pdfPath.split('/').pop());
+      return `http://localhost:8000/pdf/${pdfPath.split('/').pop()}`;
     },
+
     // Méthodes pour le slider
     handleResize() {
       clearTimeout(this.resizeTimer);
@@ -290,18 +295,18 @@ export default {
     },
 
     async saveCurrentPage() {
-      
-        if (!this.currentPage || !this.totalPages || this.totalPages === 0) {
-          return 0;
-        }
-        const index = this.sousChapitres.findIndex(sc => sc.id === this.selectedChapter.id);
-        const store = useUserStore();
-        const idUser = store.user.id;
-        const pourcentage = Math.min(Math.round((this.currentPage / this.totalPages) * 100), 100);
-        console.log(index);
-        try{
+
+      if (!this.currentPage || !this.totalPages || this.totalPages === 0) {
+        return 0;
+      }
+      const index = this.sousChapitres.findIndex(sc => sc.id === this.selectedChapter.id);
+      const store = useUserStore();
+      const idUser = store.user.id;
+      const pourcentage = Math.min(Math.round((this.currentPage / this.totalPages) * 100), 100);
+      console.log(index);
+      try {
         const res = await SousChapitre.setLastReadPage({ userId: idUser, sousChapitreId: this.selectedChapter.id, lastPageRead: this.currentPage, pourcentage: pourcentage });
-        
+
         const sousChapitreIds = this.sousChapitres.map(sc => sc.id);
         const response = await SousChapitre.getAllUserSouschapitreProgress(idUser, sousChapitreIds);
         this.sousChapitreProgress = response;
@@ -368,7 +373,7 @@ export default {
         const idUser = store.user.id;
         const response = await SousChapitre.getSousChaptersByChapterId(chapitreId);
         this.sousChapitres = response;
-        
+
         const sousChapitreIds = this.sousChapitres.map(sc => sc.id);
         const res = await SousChapitre.getAllUserSouschapitreProgress(idUser, sousChapitreIds);
         this.sousChapitreProgress = res || [];
@@ -790,7 +795,7 @@ export default {
   .card {
     flex: 0 0 300px;
   }
-  
+
   .slideWidth {
     width: 320px;
   }
@@ -809,15 +814,15 @@ export default {
   .card {
     flex: 0 0 280px;
   }
-  
+
   .slideWidth {
     width: 300px;
   }
-  
+
   .video-frame {
     height: 380px;
   }
-  
+
   .action-buttons {
     flex-direction: column;
   }
@@ -837,7 +842,7 @@ export default {
     flex: 0 0 260px;
     margin: 0 8px;
   }
-  
+
   .slideWidth {
     width: 280px;
   }
@@ -845,11 +850,11 @@ export default {
   .card-img {
     height: 180px;
   }
-  
+
   .popup-content {
     padding: 25px 15px;
   }
-  
+
   .video-frame {
     height: 300px;
   }

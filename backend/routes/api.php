@@ -31,6 +31,8 @@ Route::delete('/thematics/{id}',[ThematicController::class,'deleteThematic']);
 
 Route::prefix('Utilisateur')->controller(UtilisateurController::class)->group(function () {
     
+    Route::post('/login', 'login');
+    Route::post('/register', 'register');
     Route::get('/getAll', 'getAll');
     Route::get('/get/{id}', 'get');
     Route::delete('/delete/{id}', 'delete');
@@ -40,10 +42,6 @@ Route::prefix('Utilisateur')->controller(UtilisateurController::class)->group(fu
     Route::post('/forgot-password', 'forgotPassword');
     Route::post('/reset-password', 'resetPassword');
 });
-Route::group(['prefix'=>'/Utilisateur'],function(){
-    Route::post('/login',[UtilisateurController::class,'login']);
-    Route::post('/register',[UtilisateurController::class,'register']);
-}); 
 
 
 //Feedback Routes
@@ -125,9 +123,4 @@ Route::group(['prefix'=>'/UserSousChapitreProgress'],function(){
 }); 
 
 // Personnalite Routes
-Route::post('/Personnalite/create', [PersonnaliteController::class, 'create']);
-Route::delete('/Personnalite/delete/{id}', [PersonnaliteController::class, 'delete']);
 Route::get('/Personnalite/get/{id}', [PersonnaliteController::class, 'get']);
-Route::get('/Personnalite/getAll', [PersonnaliteController::class, 'getAll']);
-Route::put('/Personnalite/update/{id}', [PersonnaliteController::class, 'update']);
-Route::delete('/Personnalite/deleteAll', [PersonnaliteController::class, 'deleteAll']);
