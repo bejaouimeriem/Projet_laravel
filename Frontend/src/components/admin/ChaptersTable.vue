@@ -90,7 +90,7 @@
                 <button class="edit-btn" @click="editChapter(item)">
                   <i class="icon">✏️</i>
                 </button>
-                <button class="delete-btn" @click="deleteChapter(item.id)">
+                <button class="delete-btn" @click="deleteChapter(item)">
                   <i class="icon">🗑</i>
                 </button>
               </div>
@@ -272,7 +272,7 @@ export default {
       const result = [];
 
       const processChapter = (chapter, parentIndex = "", level = 0) => {
-        // Don't include children if parent is not expanded, unless it's top level
+        // Only include if top-level or parent is expanded
         if (level === 0 || this.isParentExpanded(chapter.id)) {
           const numbering = parentIndex
             ? `${parentIndex}`
@@ -286,16 +286,12 @@ export default {
             numbering: numbering,
             level: level,
             pourcentage: chapter.pourcentage || 0,
-            hasChildren:
-              chapter.sousChapitres && chapter.sousChapitres.length > 0,
+            parentId: level > 0 ? this.findParentIdByChildId(chapter.id) : null,
+            hasChildren: chapter.sousChapitres && chapter.sousChapitres.length > 0
           });
 
-          // Process children if parent is expanded
-          if (
-            this.isExpanded(chapter.id) &&
-            chapter.sousChapitres &&
-            chapter.sousChapitres.length > 0
-          ) {
+          // Process children if this chapter is expanded
+          if (this.isExpanded(chapter.id) && chapter.sousChapitres && chapter.sousChapitres.length > 0) {
             chapter.sousChapitres.forEach((child, childIndex) => {
               const childNumbering = `${numbering}.${childIndex + 1}`;
               processChapter(child, childNumbering, level + 1);
@@ -511,39 +507,32 @@ export default {
     },
 
     isParentExpanded(childId) {
-      // For sub-chapters, check if the parent chapter is expanded
-      const findParentChapterId = (childId) => {
-        for (const chapter of this.chapters) {
-          if (chapter.sousChapitres) {
-            for (const sousChapter of chapter.sousChapitres) {
-              if (sousChapter.id === childId) {
-                return chapter.id;
-              }
+      // Find the parent ID for this child
+      const parentId = this.findParentIdByChildId(childId);
 
-              // Check deeper levels if necessary - adjust as needed for your structure
-              if (sousChapter.sousChapitres) {
-                for (const subSousChapter of sousChapter.sousChapitres) {
-                  if (subSousChapter.id === childId) {
-                    return sousChapter.id;
-                  }
-                }
-              }
+      // If no parent found, it's a top-level item - always show
+      if (!parentId) return true;
+
+      // Check if the direct parent is expanded
+      return this.expandedItems.has(parentId);
+    },
+    findParentIdByChildId(childId) {
+      // First check direct children of main chapters
+      for (const chapter of this.chapters) {
+        if (chapter.sousChapitres) {
+          const directChild = chapter.sousChapitres.find(sc => sc.id === childId);
+          if (directChild) return chapter.id;
+
+          // Then check grandchildren
+          for (const sousChapter of chapter.sousChapitres) {
+            if (sousChapter.sousChapitres) {
+              const grandchild = sousChapter.sousChapitres.find(ssc => ssc.id === childId);
+              if (grandchild) return sousChapter.id;
             }
           }
         }
-        return null;
-      };
-
-      const parentId = findParentChapterId(childId);
-      if (!parentId) return true;
-
-      // Also check if parent's parent is expanded
-      const grandParentId = findParentChapterId(parentId);
-
-      return (
-        this.expandedItems.has(parentId) &&
-        (!grandParentId || this.expandedItems.has(grandParentId))
-      );
+      }
+      return null;
     },
 
     hasChildren(chapter) {
@@ -557,8 +546,30 @@ export default {
     toggleExpand(id) {
       if (this.expandedItems.has(id)) {
         this.expandedItems.delete(id);
+        // Also remove any children of this item from expandedItems
+        this.removeChildrenFromExpanded(id);
       } else {
         this.expandedItems.add(id);
+      }
+
+      // Reset to page 1 if needed
+      if (this.flattenedChapters.length > this.itemsPerPage) {
+        this.currentPage = 1;
+      }
+    },
+    removeChildrenFromExpanded(parentId) {
+      // Find all children of this parent and remove them from expandedItems
+      const parentChapter = this.findChapter(parentId);
+      if (parentChapter && parentChapter.sousChapitres) {
+        parentChapter.sousChapitres.forEach(child => {
+          this.expandedItems.delete(child.id);
+          // Recursively remove grandchildren
+          if (child.sousChapitres) {
+            child.sousChapitres.forEach(grandchild => {
+              this.expandedItems.delete(grandchild.id);
+            });
+          }
+        });
       }
     },
 
@@ -669,12 +680,12 @@ export default {
 
       this.showModal = true;
     },
-    async handlePDF(event){
-       const file = event.target.files[0];
+    async handlePDF(event) {
+      const file = event.target.files[0];
       if (file) {
         this.currentChapter.pdf = file;
         const reader = new FileReader();
-      
+
         reader.readAsDataURL(file);
       }
     },
@@ -724,7 +735,7 @@ export default {
               image: this.currentChapter.image,
               thematicId: this.selectedThematicId,
             };
-            
+
             await ChapterService.updateChapter(
               this.currentChapter.id,
               chapterData
@@ -912,84 +923,81 @@ export default {
       }
     },
 
-    deleteChapter(chapterId) {
-      this.itemToDelete = chapterId;
+    deleteChapter(to_delete) {
+      console.log(to_delete);
+      // Find the chapter in the flattened list to get the correct one
+      const chapterToDelete = this.flattenedChapters.find(item => item.id === to_delete.id);
+
+      if (!chapterToDelete) {
+        this.error = "لم يتم العثور على الفصل";
+        return;
+      }
+      // Determine if this is a main chapter or sous-chapter based on its level
+      const isMainChapter = to_delete.level === 0;
+
+      this.itemToDelete = {
+        id: to_delete.id,
+        isMainChapter: isMainChapter,
+        title: to_delete.title || "هذا الفصل"
+      };
+      console.log(this.itemToDelete);
+
       this.deleteType = "chapter";
 
-      // Trouver le chapitre pour afficher son titre dans le message
-      const chapter =
-        this.findChapter(chapterId) ||
-        this.findSousChapter(chapterId)?.sousChapter;
-      const chapterTitle = chapter?.title || "هذا الفصل";
+      this.deleteConfirmationMessage = `هل أنت متأكد من حذف ${this.itemToDelete.title}؟ ${isMainChapter ? "سيتم حذف جميع الفصول الفرعية المرتبطة به أيضًا." : ""
+        }`;
 
-      this.deleteConfirmationMessage = `هل أنت متأكد من حذف ${chapterTitle}؟ سيتم حذف جميع الفصول المرتبطة به أيضًا.`;
       this.showDeleteConfirmation = true;
     },
 
-    // Modifier la méthode deleteThematic
     deleteThematic(thematicId) {
-      this.itemToDelete = thematicId;
+      const thematic = this.thematics.find((t) => t.id === thematicId);
+
+      this.itemToDelete = {
+        id: thematicId,
+        title: thematic?.nom || "هذا المجال"
+      };
+
       this.deleteType = "thematic";
 
-      const thematic = this.thematics.find((t) => t.id === thematicId);
-      const thematicName = thematic?.nom || "هذا المجال";
-
-      this.deleteConfirmationMessage = `هل أنت متأكد من حذف ${thematicName}؟ سيتم حذف جميع الفصول المرتبطة به أيضًا.`;
+      this.deleteConfirmationMessage = `هل أنت متأكد من حذف ${this.itemToDelete.title}؟ سيتم حذف جميع الفصول المرتبطة به أيضًا.`;
       this.showDeleteConfirmation = true;
     },
 
-    // Nouvelle méthode pour confirmer la suppression
+    // In ChaptersTable.vue methods
     async confirmDeleteAction() {
       try {
         this.loading = true;
         this.showDeleteConfirmation = false;
 
         if (this.deleteType === "chapter") {
-          const chapterId = this.itemToDelete;
-          const mainChapter = this.findChapter(chapterId);
+          const { id, isMainChapter } = this.itemToDelete;
 
-          if (mainChapter) {
-            await ChapterService.deleteChapter(chapterId);
+          if (isMainChapter) {
+            // Delete main chapter using ChapterService
+            await ChapterService.deleteChapter(id);
           } else {
-            await SousChapterService.deleteSousChapter(chapterId);
+            // Delete sous-chapter using SousChapterService
+            await SousChapterService.deleteSousChapter(id);
           }
 
+          // Reload chapters after deletion
           await this.loadChaptersByThematic();
-        } else if (this.deleteType === "thematic") {
-          const thematicId = this.itemToDelete;
-          await ThematicService.deleteThematic(thematicId);
-
-          await this.loadThematics();
-
-          if (this.selectedThematicId === thematicId) {
-            this.selectedThematicId =
-              this.thematics.length > 0 ? this.thematics[0].id : "";
-            if (this.selectedThematicId) {
-              await this.loadChaptersByThematic();
-            } else {
-              this.chapters = [];
-            }
-          }
         }
-
-        this.successMessage = "تم الحذف بنجاح";
-        setTimeout(() => {
-          this.successMessage = null;
-        }, 3000);
+        // ... rest of the method
       } catch (error) {
-        console.error("Error deleting:", error);
-        this.error =
-          this.deleteType === "chapter"
-            ? "فشل في حذف الفصل. قد يكون هناك فصول فرعية مرتبطة به."
-            : "فشل في حذف المجال. قد يكون هناك فصول مرتبطة به.";
+        console.error("Error during deletion:", error);
+        this.error = "Failed to delete item";
       } finally {
         this.loading = false;
-        this.itemToDelete = null;
-        this.deleteType = "";
       }
     },
-  },
-};
+
+    resetPagination() {
+      this.currentPage = 1;
+    }
+  }
+}
 </script>
 
 <style scoped>
