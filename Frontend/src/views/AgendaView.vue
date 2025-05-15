@@ -51,7 +51,7 @@ export default {
   mounted() {
     const store = useUserStore();
     const id = store.user.id;
-    fetch(`http://localhost:9090/api/agenda/${id}`)
+    fetch(`http://localhost:8000/api/agenda/${id}`)
       .then(res => res.json())
       .then(data => {
         if (data.length > 0) {
@@ -82,7 +82,7 @@ export default {
         utilisateurId: id,
       };
 
-      fetch("http://localhost:9090/api/agenda/save", {
+      fetch("http://localhost:8000/api/agenda/save", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

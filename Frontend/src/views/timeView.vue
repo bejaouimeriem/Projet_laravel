@@ -134,6 +134,7 @@ export default defineComponent({
 
       try {
         const tasks = await TacheService.getTachesByUserandDate(id, this.isoDate);
+        console.log("Tâches chargées :", tasks);
         this.tasksByDate[this.dateKey] = tasks;
       } catch (error) {
         console.error("Erreur lors du chargement des tâches :", error);
@@ -201,6 +202,7 @@ export default defineComponent({
       this.loadTasks();
     }
   }
+
 });
 </script>
 

@@ -13,6 +13,9 @@ use App\Http\Controllers\ChapitreController;
 use App\Http\Controllers\SousChapitreController;
 use App\Http\Controllers\UserSousChapitreProgressController;
 use App\Http\Controllers\PersonnaliteController;
+use App\Http\Controllers\TacheController;
+
+use App\Http\Controllers\AgendaPageController;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -124,3 +127,13 @@ Route::group(['prefix'=>'/UserSousChapitreProgress'],function(){
 
 // Personnalite Routes
 Route::get('/Personnalite/get/{id}', [PersonnaliteController::class, 'get']);
+
+// Tache Routes
+Route::post('/Tache/create', [TacheController::class, 'create']);
+Route::post('/Tache/get/{id}', [TacheController::class, 'get']);
+Route::put('/Tache/put/{id}', [TacheController::class, 'update']);
+
+// AgendaPage Routes
+Route::get('/agenda/{id}', [AgendaPageController::class, 'getAllPages']);
+Route::post('/agenda/save', [AgendaPageController::class, 'savePage']);
+Route::delete('/agenda/delete/{id}', [AgendaPageController::class, 'deletePage']);
