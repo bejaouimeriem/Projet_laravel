@@ -1,14 +1,14 @@
 import Axios from 'axios';
 
+const API_URL = 'http://127.0.0.1:8000/api/Tache';
+
+
+
 export default {
   async getTachesByUserandDate(id, date) {
     try {
-      const response = await Axios.post(`Tache/get/${id}`, `"${date}"`, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': '*/*'
-        }
-      });
+      const response = await Axios.post(`${API_URL}/get/${id}`, {date});
+      console.log(response.data);
       return response.data;
     } catch (err) {
       console.error(err);
@@ -18,7 +18,7 @@ export default {
 
   async updateTache(id,done){
     try{
-        const res = await Axios.put(`Tache/put/${id}`,{
+        const res = await Axios.put(`${API_URL}/put/${id}`,{
             id:id,
             done: Number(done)
         });
@@ -31,10 +31,11 @@ export default {
   },
   async addTache(nomTache, idUser,date) {
     try{
-        const res = await Axios.post("Tache/create",{
+        const res = await Axios.post(`${API_URL}/create`,{
             nomTache:nomTache,
             userId:idUser,
-            date:date
+            date:date,
+            done:0
         });
         return res.data;
     }
