@@ -538,7 +538,7 @@ export default {
 .slider-wrapper {
   overflow: hidden;
   margin: 0 auto;
-  width: 100%;
+  width: 95%;
 }
 
 .slider-track {

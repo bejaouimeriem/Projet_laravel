@@ -465,7 +465,7 @@ export default {
 }
 
 .slider-wrapper {
-  width: 100%;
+  width: 95%;
   overflow: hidden;
   position: relative;
 }
