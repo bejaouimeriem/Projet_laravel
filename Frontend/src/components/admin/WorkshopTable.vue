@@ -30,9 +30,6 @@
           :key="event?.id || index"
           class="event-card"
         >
-          <div class="event-image">
-            <img :src="getImageUrl(event.image)" alt="صورة الحدث" width="100%" height="100%"/>
-          </div>
           <div class="event-content">
             <div class="event-number">{{ startIndex + index + 1 }}</div>
             <div class="event-title">{{ event.nom }}</div>
