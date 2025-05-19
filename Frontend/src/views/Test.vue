@@ -129,9 +129,9 @@ export default {
         } else if (this.max === this.sumB) {
           this.type = 2;
         } else if (this.max === this.sumC) {
-          this.type = 3;
-        } else if (this.max === this.sumD) {
           this.type = 4;
+        } else if (this.max === this.sumD) {
+          this.type = 3;
         }
         try {
           const store = useUserStore();
