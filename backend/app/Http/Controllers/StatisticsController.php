@@ -20,7 +20,7 @@ class StatisticsController extends Controller
     public function getStatistics(): JsonResponse
     {
         try {
-            $period = request()->query('period', 'week');
+            $period = request()->query('period', 'year');
             
             // Calculate date range based on period
             $dateRange = $this->getDateRange($period);

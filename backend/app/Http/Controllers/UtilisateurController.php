@@ -119,6 +119,7 @@ class UtilisateurController extends Controller
     public function updateProfile($id, Request $request)
     {
         $user = Utilisateur::find($id);
+
         if (!$user) {
             return response()->json(['message' => 'لم يتم العثور على المستخدم'], 404);
         }
@@ -126,15 +127,28 @@ class UtilisateurController extends Controller
         $validated = $request->validate([
             'nom' => 'nullable|string|max:255',
             'email' => 'nullable|email|unique:utilisateurs,email,' . $id,
-            'mdpsCompte' => 'nullable|string|min:6',
+            'newPassword' => 'nullable|string|min:6',
+            'currentPassword' => 'nullable|string',
             'role' => 'nullable|integer',
         ]);
 
-        if (isset($validated['mdpsCompte'])) {
-            $validated['mdpsCompte'] = bcrypt($validated['mdpsCompte']);
+        // Vérifie le mot de passe actuel si on veut en définir un nouveau
+        if (isset($validated['newPassword'])) {
+            if (!isset($validated['currentPassword']) || !Hash::check($validated['currentPassword'], $user->mdpsCompte)) {
+                return response()->json(['message' => 'كلمة المرور الحالية غير صحيحة'], 401);
+            }
+
+            // Hasher et stocker le nouveau mot de passe
+            $validated['mdpsCompte'] = bcrypt($validated['newPassword']);
         }
 
+        // Nettoyer les champs inutiles avant la mise à jour
+        unset($validated['newPassword']);
+        unset($validated['currentPassword']);
+
+        // Mise à jour de l'utilisateur
         $user->update($validated);
+
         return response()->json($user);
     }
 
