@@ -984,7 +984,28 @@ export default {
           // Reload chapters after deletion
           await this.loadChaptersByThematic();
         }
-        // ... rest of the method
+        else if (this.deleteType === "thematic") {
+          const thematicId = this.itemToDelete;
+          await ThematicService.deleteThematic(thematicId);
+
+          await this.loadThematics();
+
+          if (this.selectedThematicId === thematicId) {
+            this.selectedThematicId =
+              this.thematics.length > 0 ? this.thematics[0].id : "";
+            if (this.selectedThematicId) {
+              await this.loadChaptersByThematic();
+            } else {
+              this.chapters = [];
+            }
+          }
+        }
+
+        this.successMessage = "تم الحذف بنجاح";
+        setTimeout(() => {
+          this.successMessage = null;
+        }, 3000);
+
       } catch (error) {
         console.error("Error during deletion:", error);
         this.error = "Failed to delete item";
