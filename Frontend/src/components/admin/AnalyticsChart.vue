@@ -81,7 +81,7 @@ export default {
     const chartInstance = ref(null);
     const isRefreshing = ref(false);
     const showDropdown = ref(false);
-    const selectedPeriod = ref("week");
+    const selectedPeriod = ref("year");
     const currentChartType = ref("bar");
     const activeDatasets = ref([true, true, true, true]);
 

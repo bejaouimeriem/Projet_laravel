@@ -224,8 +224,7 @@ export default {
       const query = this.searchQuery.toLowerCase();
       return this.events.filter(
         (event) =>
-          event.nom.toLowerCase().includes(query) ||
-          event.description.toLowerCase().includes(query)
+          event.nom.toLowerCase().includes(query)
       );
     },
     totalPages() {
